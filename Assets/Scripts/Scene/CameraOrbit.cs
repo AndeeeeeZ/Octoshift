@@ -31,6 +31,7 @@ public class CameraOrbit : MonoBehaviour
         input.Camera.Drag.performed += OnDrag;
         input.Camera.Drag.canceled += OnDrag;
         input.Camera.Look.performed += OnLook;
+        input.Camera.Look.canceled += OnLook;
     }
 
     private void OnDisable()
@@ -38,6 +39,7 @@ public class CameraOrbit : MonoBehaviour
         input.Camera.Drag.performed -= OnDrag;
         input.Camera.Drag.canceled -= OnDrag;
         input.Camera.Look.performed -= OnLook;
+        input.Camera.Look.canceled -= OnLook;
         input.Disable(); 
     }
 
