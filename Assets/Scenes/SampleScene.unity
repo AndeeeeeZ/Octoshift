@@ -565,7 +565,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraZoom
   minZoom: 3
   maxZoom: 8
-  zoomSensitivity: 0.01
+  zoomSensitivity: 0.7
 --- !u!1 &339948229
 GameObject:
   m_ObjectHideFlags: 0
