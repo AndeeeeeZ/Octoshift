@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// Helper class to make 2D object go close to the surface it's supposed to be attached to
+
 public class SurfaceAttachHelper : MonoBehaviour
 {
     [SerializeField] private float surfaceOffset = 0.01f;
