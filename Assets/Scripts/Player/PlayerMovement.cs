@@ -1,4 +1,3 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,16 +6,18 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
+    [Header("Components")]
+    [SerializeField] private GroundDetection groundDetection;
 
     private PlayerInput input;
-    private Rigidbody rb; 
+    private Rigidbody rb;
     private float moveDirection = 0f;
-    
+
 
     private void Awake()
     {
         input = new PlayerInput();
-        rb = GetComponent<Rigidbody>(); 
+        rb = GetComponent<Rigidbody>();
     }
 
     private void Update()
@@ -53,7 +54,17 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnJump(InputAction.CallbackContext context)
     {
-        PerformJump(); 
+        if (groundDetection == null)
+        {
+            Debug.LogError("Missing ground detection");
+            return;
+        }
+        if (!groundDetection.IsGrounded())
+        {
+            Debug.LogWarning("Attempted jump but not grounded");
+            return;
+        }
+        PerformJump();
     }
 
     #endregion
@@ -62,17 +73,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void MovementUpdate()
     {
-        Vector3 velocity = rb.linearVelocity; 
-        velocity.x = moveSpeed * moveDirection; 
-        rb.linearVelocity = velocity; 
+        Vector3 velocity = rb.linearVelocity;
+        velocity.x = moveSpeed * moveDirection;
+        rb.linearVelocity = velocity;
     }
 
     private void PerformJump()
     {
-        rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse); 
+        Vector3 velocity = rb.linearVelocity;
+        velocity.y = 0f;
+        rb.linearVelocity = velocity;
+        rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
     }
-
-
 
     #endregion
 
