@@ -1,5 +1,8 @@
 using UnityEngine;
 
+// Unused script for cube rotation 
+// More like button to rotate
+
 public class CubeRotation : MonoBehaviour
 {
     [SerializeField] private float rotationSpeed = 180f;

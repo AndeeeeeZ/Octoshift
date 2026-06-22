@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class CubeRotator : MonoBehaviour
 {
-    [SerializeField] private float dragThreshold = 8f;
-    [SerializeField] private float degreesPerPixel = 0.35f;
-    [SerializeField] private float snapDuration = 0.12f;
+    [SerializeField] private float dragThreshold = 1f;
+    [SerializeField] private float degreesPerPixel = 0.5f;
+    [SerializeField] private float snapDuration = 0.1f;
 
     private bool dragging;
     private bool axisLocked;
