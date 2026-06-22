@@ -5,7 +5,7 @@ public class Exit : MonoBehaviour
 {
     [SerializeField] private bool DEBUG; 
     public UnityEvent OnReachingExit; 
-    private string playerTag = "Player";
+    private readonly string playerTag = "Player";
     private bool hasReachedExit;
 
     private void Start()

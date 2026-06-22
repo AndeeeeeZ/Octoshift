@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class CubeRotator : MonoBehaviour
 {
-    [SerializeField] private float dragThreshold = 1f;
-    [SerializeField] private float degreesPerPixel = 0.5f;
-    [SerializeField] private float snapDuration = 0.1f;
+    [SerializeField] private FloatValue dragThreshold;
+    [SerializeField] private FloatValue degreesPerPixel;
+    [SerializeField] private FloatValue snapDuration;
 
     private bool dragging;
     private bool axisLocked;
@@ -70,7 +70,7 @@ public class CubeRotator : MonoBehaviour
 
         if (!axisLocked)
         {
-            if (localDragOnFace.magnitude < dragThreshold * 0.001f)
+            if (localDragOnFace.magnitude < dragThreshold.Value * 0.001f)
                 return;
 
             LockAxis(localDragOnFace);
@@ -81,7 +81,7 @@ public class CubeRotator : MonoBehaviour
         // Only use movement along the chosen face tangent.
         float dragAmount = Vector3.Dot(localDragOnFace, chosenTangentLocal);
 
-        currentAngle += dragAmount * degreesPerPixel;
+        currentAngle += dragAmount * degreesPerPixel.Value;
 
         transform.rotation = Quaternion.AngleAxis(currentAngle, worldAxis) * startRotation;
     }
@@ -124,7 +124,7 @@ public class CubeRotator : MonoBehaviour
             worldAxis = (startRotation * Vector3.Cross(localFaceNormal, chosenTangentLocal)).normalized;
 
             // Seed the angle direction from the initial drag.
-            currentAngle += rightAmount * degreesPerPixel;
+            currentAngle += rightAmount * degreesPerPixel.Value;
         }
         else
         {
@@ -133,7 +133,7 @@ public class CubeRotator : MonoBehaviour
             worldAxis = (startRotation * Vector3.Cross(localFaceNormal, chosenTangentLocal)).normalized;
 
             // Seed the angle direction from the initial drag.
-            currentAngle += upAmount * degreesPerPixel;
+            currentAngle += upAmount * degreesPerPixel.Value;
         }
 
         axisLocked = true;
@@ -144,10 +144,10 @@ public class CubeRotator : MonoBehaviour
         Quaternion from = transform.rotation;
         float t = 0f;
 
-        while (t < snapDuration)
+        while (t < snapDuration.Value)
         {
             t += Time.deltaTime;
-            float alpha = Mathf.Clamp01(t / snapDuration);
+            float alpha = Mathf.Clamp01(t / snapDuration.Value);
             transform.rotation = Quaternion.Slerp(from, targetRotation, alpha);
             yield return null;
         }
