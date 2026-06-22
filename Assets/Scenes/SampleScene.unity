@@ -426,6 +426,7 @@ GameObject:
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
   - component: {fileID: 330585548}
+  - component: {fileID: 330585549}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -500,8 +501,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.093192935, y: 0.025306284, z: -1.2961187}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -566,6 +567,22 @@ MonoBehaviour:
   minZoom: 3
   maxZoom: 8
   zoomSensitivity: 0.7
+--- !u!114 &330585549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8398047554d37044ca1006303e1428ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CubeInteractor
+  orbitCamera: {fileID: 330585545}
+  cubeLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1 &339948229
 GameObject:
   m_ObjectHideFlags: 0
@@ -2949,7 +2966,8 @@ GameObject:
   - component: {fileID: 1979590295}
   - component: {fileID: 1979590299}
   - component: {fileID: 1979590300}
-  m_Layer: 0
+  - component: {fileID: 1979590301}
+  m_Layer: 7
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3056,7 +3074,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1979590294}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2538fe30374b2b640a25e095215a51ba, type: 3}
   m_Name: 
@@ -3072,13 +3090,30 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1979590294}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 85549c4f1624a394da3861c06bd652c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CubeDragRotation
-  cubeRotation: {fileID: 1979590299}
-  dragThreshold: 50
+  orbitCamera: {fileID: 330585545}
+  dragThreshold: 1
+  rotationSensitivity: 0.5
+  snapSpeed: 360
+--- !u!114 &1979590301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979590294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bd6e364a4261e64bb2d00063390b5f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CubeRotator
+  dragThreshold: 2
+  degreesPerPixel: 0.35
+  snapDuration: 0.15
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
