@@ -194,6 +194,54 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Cube",
+            "id": "47e864d7-fa50-4849-8618-78bb42607a84",
+            "actions": [
+                {
+                    "name": "Drag",
+                    "type": "Button",
+                    "id": "22e4556e-81d5-47fd-8162-60e68e33fa97",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Look",
+                    "type": "Value",
+                    "id": "aacdaaae-dd46-4179-8011-b8fe2c683c21",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "70f05361-913b-448a-a0f5-cb8ba27560e3",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "503e0710-e748-43a1-8c2d-10fb1054da19",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Look",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
