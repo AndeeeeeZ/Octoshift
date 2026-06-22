@@ -33,13 +33,15 @@ public class CubeRotation : MonoBehaviour
         }
     }
 
-    // direction: -1 = left, 1 = right
     public void RotateX(int direction)
     {
         if (!canRotateX || isRotating)
             return;
 
-        targetRotation *= Quaternion.Euler(90f * direction, 0f, 0f);
+        targetRotation =
+            Quaternion.AngleAxis(90f * direction, Vector3.right) *
+            targetRotation;
+
         isRotating = true;
     }
 
@@ -48,7 +50,10 @@ public class CubeRotation : MonoBehaviour
         if (!canRotateY || isRotating)
             return;
 
-        targetRotation *= Quaternion.Euler(0f, 90f * direction, 0f);
+        targetRotation =
+            Quaternion.AngleAxis(90f * direction, Vector3.up) *
+            targetRotation;
+
         isRotating = true;
     }
 
@@ -57,7 +62,10 @@ public class CubeRotation : MonoBehaviour
         if (!canRotateZ || isRotating)
             return;
 
-        targetRotation *= Quaternion.Euler(0f, 0f, 90f * direction);
+        targetRotation =
+            Quaternion.AngleAxis(90f * direction, Vector3.forward) *
+            targetRotation;
+
         isRotating = true;
     }
 }
