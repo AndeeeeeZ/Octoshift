@@ -67,6 +67,23 @@ public class RegionRotator : MonoBehaviour
                 true);
         }
 
+        // Find all poles that will rotate
+        HashSet<Pole> polesToMove = new();
+
+        foreach (BlockNode block in region)
+        {
+            foreach (Pole pole in block.Connections)
+            {
+                polesToMove.Add(pole);
+            }
+        }
+
+        foreach (Pole pole in polesToMove)
+        {
+            movingTransforms.Add(pole.transform);
+            pole.transform.SetParent(pivot, true);
+        }
+
         startRotation = pivot.rotation;
 
         targetRotation =

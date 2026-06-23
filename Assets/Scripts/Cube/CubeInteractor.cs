@@ -3,14 +3,13 @@ using UnityEngine.InputSystem;
 
 public class CubeInteractor : MonoBehaviour
 {
+    [SerializeField] private PuzzleDragRotator activeRotator;
     [SerializeField] private Camera orbitCamera;
     [SerializeField] private LayerMask cubeLayer = ~0;
 
     private PlayerInput input;
     private Vector2 mousePosition;
     private Vector2 mouseDelta;
-
-    private CubeRotator activeRotator;
     private bool dragging;
 
     private void Awake()
@@ -62,13 +61,11 @@ public class CubeInteractor : MonoBehaviour
         }
         else if (context.canceled)
         {
-            dragging = false;
-
-            if (activeRotator != null)
+            if (dragging && activeRotator != null)
             {
                 activeRotator.EndDrag();
-                activeRotator = null;
             }
+            dragging = false;
         }
     }
 
@@ -82,15 +79,21 @@ public class CubeInteractor : MonoBehaviour
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, cubeLayer))
             return;
 
-        CubeRotator rotator = hit.collider.GetComponentInParent<CubeRotator>();
-        if (rotator == null)
+        BlockNode block =
+            hit.collider.GetComponentInParent<BlockNode>();
+
+        if (block == null)
         {
-            Debug.LogWarning("Missing cubeRotator component"); 
             return;
         }
 
-        activeRotator = rotator;
-        dragging = true;
-        activeRotator.BeginDrag(hit.normal, orbitCamera.transform);
+        if (activeRotator == null)
+        {
+            Debug.LogError("Missing PuzzleDragRotator reference");
+            return;
+        }
+
+        dragging = activeRotator.BeginDrag(block, hit.normal, orbitCamera.transform);
+
     }
 }
