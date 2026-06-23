@@ -32,34 +32,44 @@ public static class GraphTraversal
                 BlockNode neighbor = pole.GetOtherBlock(current);
 
                 if (neighbor == null)
-                    continue; 
-                
+                    continue;
+
                 if (visited.Contains(neighbor))
-                    continue; 
-                
-                visited.Add(neighbor); 
-                queue.Enqueue(neighbor); 
+                    continue;
+
+                visited.Add(neighbor);
+                queue.Enqueue(neighbor);
             }
         }
 
-        return result; 
+        return result;
     }
 
     public static List<BlockNode> FindMovingRegion(
-        BlockNode start, 
-        Axis rotationAxis
-    )
+    BlockNode pivot,
+    Axis rotationAxis)
     {
         List<BlockNode> result = new();
 
-        if (start == null)
+        if (pivot == null)
             return result;
+
+        HashSet<Pole> cutPoles = new();
+
+        // Only inspect poles attached to pivot.
+        foreach (Pole pole in pivot.Connections)
+        {
+            if (pole.GetAxis() == rotationAxis)
+            {
+                cutPoles.Add(pole);
+            }
+        }
 
         HashSet<BlockNode> visited = new();
         Queue<BlockNode> queue = new();
 
-        visited.Add(start);
-        queue.Enqueue(start);
+        visited.Add(pivot);
+        queue.Enqueue(pivot);
 
         while (queue.Count > 0)
         {
@@ -68,9 +78,7 @@ public static class GraphTraversal
 
             foreach (Pole pole in current.Connections)
             {
-                // Matching axis = hinge
-                // Do not traverse through it
-                if (pole.GetAxis() == rotationAxis)
+                if (cutPoles.Contains(pole))
                     continue;
 
                 BlockNode neighbor = pole.GetOtherBlock(current);
