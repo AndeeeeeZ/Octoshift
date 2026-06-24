@@ -1317,7 +1317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
-  jumpForce: 12
+  jumpForce: 10
   groundDetection: {fileID: 518616820}
 --- !u!114 &365192243
 MonoBehaviour:
@@ -3164,7 +3164,6 @@ MonoBehaviour:
   orbitPivot: {fileID: 181931801}
   player: {fileID: 365192239}
   sensitivity: 0.4
-  maxPitch: 80
 --- !u!4 &1223120867
 Transform:
   m_ObjectHideFlags: 0
