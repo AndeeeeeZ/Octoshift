@@ -29,6 +29,9 @@ public class StickToWall : MonoBehaviour
         }
         else
         {
+            if (currStickTarget == null) 
+                return; 
+                
             Debug.Log("No block detected"); 
             if (currStickTarget != null)
             {
