@@ -7,7 +7,6 @@ public class GroundDetection : MonoBehaviour
     [SerializeField] private float checkDistance;
     [SerializeField] private float checkRadius;
     [SerializeField] private float horizontalOffset; 
-
     public bool IsGrounded()
     {
         Vector3 center = transform.position - transform.up * checkDistance;
