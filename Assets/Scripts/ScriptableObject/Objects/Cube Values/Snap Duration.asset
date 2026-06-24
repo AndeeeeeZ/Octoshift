@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04e3430757da8ee4195a4825cc8fcdd2, type: 3}
   m_Name: Snap Duration
   m_EditorClassIdentifier: Assembly-CSharp::FloatValue
-  value: 0.2
+  value: 0.35

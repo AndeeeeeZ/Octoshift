@@ -13,7 +13,6 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody rb;
     private float moveDirection = 0f;
 
-
     private void Awake()
     {
         input = new PlayerInput();
@@ -74,16 +73,31 @@ public class PlayerMovement : MonoBehaviour
     private void MovementUpdate()
     {
         Vector3 velocity = rb.linearVelocity;
-        velocity.x = moveSpeed * moveDirection;
-        rb.linearVelocity = velocity;
+
+        Vector3 verticalVelocity =
+            Vector3.Project(
+                velocity,
+                transform.up);
+
+        Vector3 horizontalVelocity =
+            transform.right *
+            (moveSpeed * moveDirection);
+
+        rb.linearVelocity =
+            horizontalVelocity +
+            verticalVelocity;
     }
 
     private void PerformJump()
     {
+        Debug.Log(transform.up); 
         Vector3 velocity = rb.linearVelocity;
-        velocity.y = 0f;
+
+        velocity -= Vector3.Project(velocity, transform.up);
+
         rb.linearVelocity = velocity;
-        rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
+
+        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
     #endregion
