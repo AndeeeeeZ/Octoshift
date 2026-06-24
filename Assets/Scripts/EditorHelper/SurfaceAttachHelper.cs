@@ -13,13 +13,15 @@ public class SurfaceAttachHelper : MonoBehaviour
     {
         Ray ray = new Ray(
             transform.position,
-            transform.forward);
+            transform.forward
+            );
 
         Debug.DrawRay(
             transform.position,
             transform.forward * rayDistance,
             Color.red,
-            1f);
+            1f
+            );
 
         if (Physics.Raycast(
             ray,
@@ -36,7 +38,8 @@ public class SurfaceAttachHelper : MonoBehaviour
                 transform.rotation =
                     Quaternion.LookRotation(
                         -hit.normal,
-                        transform.up);
+                        transform.up
+                        );
             }
         }
         else
