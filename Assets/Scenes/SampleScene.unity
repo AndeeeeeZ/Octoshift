@@ -1317,7 +1317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
-  jumpForce: 5
+  jumpForce: 7
   groundDetection: {fileID: 518616820}
 --- !u!114 &365192243
 MonoBehaviour:
