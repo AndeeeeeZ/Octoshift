@@ -4,13 +4,15 @@ using UnityEngine.InputSystem;
 public class CameraOrbit : MonoBehaviour
 {
     [SerializeField] private Transform orbitPivot;
+    [SerializeField] private Transform player;
     [SerializeField] private float sensitivity = 0.1f;
+    [SerializeField] private float maxPitch = 80f;
 
     private PlayerInput input;
     private Vector2 lookInput;
     private bool dragging;
 
-    private float yaw;
+    private Quaternion yawRotation;
     private float pitch;
 
     private void Awake()
@@ -20,37 +22,62 @@ public class CameraOrbit : MonoBehaviour
 
     private void Start()
     {
-        Vector3 angles = orbitPivot.eulerAngles;
-        yaw = angles.y;
-        pitch = angles.x;
+        yawRotation = Quaternion.LookRotation(
+            player.forward,
+            player.up);
+
+        orbitPivot.rotation = yawRotation;
+
+        pitch = 0f;
     }
 
     private void OnEnable()
     {
         input.Enable();
+
         input.Camera.Drag.performed += OnDrag;
         input.Camera.Drag.canceled += OnDrag;
+
         input.Camera.Look.performed += OnLook;
         input.Camera.Look.canceled += OnLook;
+
+        input.Camera.Focus.performed += OnFocus;
     }
 
     private void OnDisable()
     {
         input.Camera.Drag.performed -= OnDrag;
         input.Camera.Drag.canceled -= OnDrag;
+
         input.Camera.Look.performed -= OnLook;
         input.Camera.Look.canceled -= OnLook;
-        input.Disable(); 
+
+        input.Camera.Focus.performed -= OnFocus;
+
+        input.Disable();
     }
 
-    public void OnLook(InputAction.CallbackContext context)
+    private void OnLook(InputAction.CallbackContext context)
     {
         lookInput = context.ReadValue<Vector2>();
     }
 
-    public void OnDrag(InputAction.CallbackContext context)
+    private void OnDrag(InputAction.CallbackContext context)
     {
         dragging = context.ReadValueAsButton();
+    }
+
+    private void OnFocus(InputAction.CallbackContext context)
+    {
+        orbitPivot.position = player.position;
+
+        yawRotation = Quaternion.LookRotation(
+            player.forward,
+            player.up);
+
+        pitch = 0f;
+
+        orbitPivot.rotation = yawRotation;
     }
 
     private void LateUpdate()
@@ -58,14 +85,23 @@ public class CameraOrbit : MonoBehaviour
         if (!dragging)
             return;
 
-        yaw += lookInput.x * sensitivity;
+        yawRotation =
+            Quaternion.AngleAxis(
+                lookInput.x * sensitivity,
+                player.up) * yawRotation;
+
         pitch -= lookInput.y * sensitivity;
+        pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
 
-        pitch = Mathf.Clamp(pitch, -80f, 80f);
+        Vector3 right =
+            yawRotation * Vector3.right;
 
-        orbitPivot.rotation = Quaternion.Euler(
-            pitch,
-            yaw,
-            0f);
+        Quaternion pitchRotation =
+            Quaternion.AngleAxis(
+                pitch,
+                right);
+
+        orbitPivot.rotation =
+            pitchRotation * yawRotation;
     }
 }

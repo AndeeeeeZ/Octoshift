@@ -243,6 +243,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Focus"",
+                    ""type"": ""Button"",
+                    ""id"": ""8faf6caf-2668-4525-815f-2d5d445859aa"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -276,6 +285,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9c06e241-9cfb-44aa-a8f3-7f2a0360e07d"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Focus"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -341,6 +361,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Camera_Look = m_Camera.FindAction("Look", throwIfNotFound: true);
         m_Camera_Drag = m_Camera.FindAction("Drag", throwIfNotFound: true);
         m_Camera_Zoom = m_Camera.FindAction("Zoom", throwIfNotFound: true);
+        m_Camera_Focus = m_Camera.FindAction("Focus", throwIfNotFound: true);
         // Cube
         m_Cube = asset.FindActionMap("Cube", throwIfNotFound: true);
         m_Cube_Drag = m_Cube.FindAction("Drag", throwIfNotFound: true);
@@ -537,6 +558,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Camera_Look;
     private readonly InputAction m_Camera_Drag;
     private readonly InputAction m_Camera_Zoom;
+    private readonly InputAction m_Camera_Focus;
     /// <summary>
     /// Provides access to input actions defined in input action map "Camera".
     /// </summary>
@@ -560,6 +582,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Camera/Zoom".
         /// </summary>
         public InputAction @Zoom => m_Wrapper.m_Camera_Zoom;
+        /// <summary>
+        /// Provides access to the underlying input action "Camera/Focus".
+        /// </summary>
+        public InputAction @Focus => m_Wrapper.m_Camera_Focus;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -595,6 +621,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Zoom.started += instance.OnZoom;
             @Zoom.performed += instance.OnZoom;
             @Zoom.canceled += instance.OnZoom;
+            @Focus.started += instance.OnFocus;
+            @Focus.performed += instance.OnFocus;
+            @Focus.canceled += instance.OnFocus;
         }
 
         /// <summary>
@@ -615,6 +644,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Zoom.started -= instance.OnZoom;
             @Zoom.performed -= instance.OnZoom;
             @Zoom.canceled -= instance.OnZoom;
+            @Focus.started -= instance.OnFocus;
+            @Focus.performed -= instance.OnFocus;
+            @Focus.canceled -= instance.OnFocus;
         }
 
         /// <summary>
@@ -805,6 +837,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnZoom(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Focus" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFocus(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Cube" which allows adding and removing callbacks.

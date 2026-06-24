@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Unity.VisualStudio.Editor;
 
 public static class GraphTraversal
 {

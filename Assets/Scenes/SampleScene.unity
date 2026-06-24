@@ -927,8 +927,8 @@ Camera:
   m_GameObject: {fileID: 330585543}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_ClearFlags: 2
+  m_BackGroundColor: {r: 0.073652096, g: 0.08259366, b: 0.17610055, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -978,7 +978,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.0900089, y: 1.6800122, z: -8.137727}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1041,7 +1041,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraZoom
   minZoom: 3
-  maxZoom: 8
+  maxZoom: 14
   zoomSensitivity: 0.7
 --- !u!114 &330585549
 MonoBehaviour:
@@ -1317,7 +1317,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 5
-  jumpForce: 7
+  jumpForce: 12
   groundDetection: {fileID: 518616820}
 --- !u!114 &365192243
 MonoBehaviour:
@@ -1348,7 +1348,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e059b20b4f007d43b7bf7e1825190ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CustomGravity
-  gravityStrength: 9.8
+  gravityStrength: 20
 --- !u!114 &365192245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3163,7 +3163,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraOrbit
   orbitPivot: {fileID: 181931801}
   player: {fileID: 365192239}
-  sensitivity: 0.2
+  sensitivity: 0.4
+  maxPitch: 80
 --- !u!4 &1223120867
 Transform:
   m_ObjectHideFlags: 0
@@ -3173,7 +3174,7 @@ Transform:
   m_GameObject: {fileID: 1223120865}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -6.37376}
+  m_LocalPosition: {x: 0, y: 0, z: -21.86}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
