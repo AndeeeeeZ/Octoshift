@@ -112,7 +112,7 @@ public class PuzzleDragRotator : MonoBehaviour
             region,
             selectedBlock.transform.position,
             worldAxis,
-            rotationDirection * 90f);
+            rotationDirection * 90f); 
     }
 
     private void LockAxis(Vector3 localDragOnFace)

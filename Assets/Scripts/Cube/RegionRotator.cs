@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem.OnScreen;
 
 public class RegionRotator : MonoBehaviour
 {
     [SerializeField] private FloatValue snapDuration;
+    [SerializeField] private VoidEvent OnRotationStarts, OnRotationEnds;
 
     private readonly List<Transform> movingTransforms = new();
 
@@ -44,6 +46,7 @@ public class RegionRotator : MonoBehaviour
         }
     }
 
+    // Start rotation
     public void RotateRegion(
         List<BlockNode> region,
         Vector3 pivotPosition,
@@ -92,6 +95,8 @@ public class RegionRotator : MonoBehaviour
 
         timer = 0f;
         rotating = true;
+
+        OnRotationStarts.Raise(); 
     }
 
     private void FinishRotation()
@@ -106,6 +111,8 @@ public class RegionRotator : MonoBehaviour
         movingTransforms.Clear();
 
         rotating = false;
+
+        OnRotationEnds.Raise(); 
     }
 
     public bool IsRotating => rotating;

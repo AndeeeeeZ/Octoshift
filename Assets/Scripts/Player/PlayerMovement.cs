@@ -90,7 +90,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void PerformJump()
     {
-        Debug.Log(transform.up); 
         Vector3 velocity = rb.linearVelocity;
 
         velocity -= Vector3.Project(velocity, transform.up);
