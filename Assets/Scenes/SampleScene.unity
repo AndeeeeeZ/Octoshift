@@ -3142,6 +3142,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1223120867}
   - component: {fileID: 1223120866}
+  - component: {fileID: 1223120868}
   m_Layer: 0
   m_Name: Camera Orbit
   m_TagString: Untagged
@@ -3180,6 +3181,34 @@ Transform:
   - {fileID: 330585546}
   m_Father: {fileID: 181931801}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1223120868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1223120865}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2368a66a622ba8d4c9238d907fc5b54a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoidEventListener
+  Event: {fileID: 11400000, guid: f98dc12a4e19bfd46b3a35713ce5f29b, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1223120866}
+        m_TargetAssemblyTypeName: CameraOrbit, Assembly-CSharp
+        m_MethodName: AlignToPlayerUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1279996067
 GameObject:
   m_ObjectHideFlags: 0
