@@ -24,6 +24,11 @@ public class CameraOrbit : MonoBehaviour
         cam = Camera.main;
     }
 
+    private void Start()
+    {
+        Focus(); 
+    }
+
     private void OnEnable()
     {
         input.Enable();
@@ -85,6 +90,11 @@ public class CameraOrbit : MonoBehaviour
     }
 
     private void OnFocus(InputAction.CallbackContext context)
+    {
+        Focus(); 
+    }
+
+    private void Focus()
     {
         orbitPivot.position = player.position;
 
