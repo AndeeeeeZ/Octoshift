@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpForce;
     [Header("Components")]
     [SerializeField] private GroundDetection groundDetection;
+    [SerializeField] private SoundEffectPlayer soundEffectPlayer; 
 
     private PlayerInput input;
     private StickToWall stickToWall;
@@ -77,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
         }
         PerformJump();
         animator.SetTrigger("jump"); 
+        soundEffectPlayer.PlayClip(); 
     }
 
     #endregion
