@@ -1,4 +1,3 @@
-using System.Net.Security;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,8 +10,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private GroundDetection groundDetection;
 
     private PlayerInput input;
-    private StickToWall stickToWall; 
-    private SpriteRenderer sr; 
+    private StickToWall stickToWall;
+    private Animator animator;
+    private SpriteRenderer sr;
     private Rigidbody rb;
     private float moveDirection = 0f;
 
@@ -20,8 +20,14 @@ public class PlayerMovement : MonoBehaviour
     {
         input = new PlayerInput();
         rb = GetComponent<Rigidbody>();
-        stickToWall = GetComponent<StickToWall>(); 
-        sr = GetComponent<SpriteRenderer>(); 
+        stickToWall = GetComponent<StickToWall>();
+        sr = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+    }
+
+    private void Update()
+    {
+        UpdateAnimations();
     }
 
     private void FixedUpdate()
@@ -49,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnMove(InputAction.CallbackContext context)
     {
         moveDirection = context.ReadValue<float>();
-        sr.flipX = moveDirection < 0f; 
+        sr.flipX = moveDirection < 0f;
     }
 
     private void OnStopMoving(InputAction.CallbackContext context)
@@ -107,27 +113,42 @@ public class PlayerMovement : MonoBehaviour
 
     #endregion
 
-    // Check is player is attached to a block and if is not moving and grounded
+    // Check if the player is attached to a block and if is not moving and grounded
     public bool IsAtStablePosition()
     {
         if (rb.linearVelocity.sqrMagnitude > 0.1f)
         {
-            Debug.LogWarning("Player is moving"); 
-            return false; 
+            Debug.LogWarning("Player is moving");
+            return false;
         }
 
         if (!stickToWall.IsOnABlock())
         {
             Debug.LogWarning("Player is not on a block");
-            return false;  
+            return false;
         }
 
         if (!groundDetection.IsGrounded())
         {
-            Debug.LogWarning("Player is not grounded"); 
-            return false; 
+            Debug.LogWarning("Player is not grounded");
+            return false;
         }
-        return true; 
+        return true;
+    }
+
+    private void UpdateAnimations()
+    {
+        float verticalSpeed =
+            Vector3.Dot(rb.linearVelocity, transform.up);
+
+        bool grounded = groundDetection.IsGrounded();
+
+        animator.SetBool("grounded", grounded);
+
+        // Moving animation
+        animator.SetBool("isMoving", Mathf.Abs(moveDirection) > 0.01f && grounded);
+
+        animator.SetBool("falling", !grounded && verticalSpeed < -0.1f);
     }
 
 }
