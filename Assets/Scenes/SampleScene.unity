@@ -3161,6 +3161,7 @@ MonoBehaviour:
   orbitPivot: {fileID: 181931801}
   player: {fileID: 365192239}
   sensitivity: 0.4
+  panSensitivity: 0.75
 --- !u!4 &1223120867
 Transform:
   m_ObjectHideFlags: 0
@@ -9903,10 +9904,10 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 410087041}
+  - {fileID: 410391242}
   - {fileID: 181931801}
   - {fileID: 832575519}
   - {fileID: 339948232}
-  - {fileID: 410391242}
   - {fileID: 158929833}
   - {fileID: 365192239}
   - {fileID: 64713219}

@@ -166,6 +166,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Pan",
+                    "type": "Button",
+                    "id": "ace991ab-7847-4b6a-ad72-a05161edb111",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -210,6 +219,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Focus",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ffa271b5-9efd-4641-b6a2-3e497820a102",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pan",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

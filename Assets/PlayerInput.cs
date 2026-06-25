@@ -252,6 +252,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pan"",
+                    ""type"": ""Button"",
+                    ""id"": ""ace991ab-7847-4b6a-ad72-a05161edb111"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -296,6 +305,17 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Focus"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ffa271b5-9efd-4641-b6a2-3e497820a102"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pan"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -362,6 +382,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Camera_Drag = m_Camera.FindAction("Drag", throwIfNotFound: true);
         m_Camera_Zoom = m_Camera.FindAction("Zoom", throwIfNotFound: true);
         m_Camera_Focus = m_Camera.FindAction("Focus", throwIfNotFound: true);
+        m_Camera_Pan = m_Camera.FindAction("Pan", throwIfNotFound: true);
         // Cube
         m_Cube = asset.FindActionMap("Cube", throwIfNotFound: true);
         m_Cube_Drag = m_Cube.FindAction("Drag", throwIfNotFound: true);
@@ -559,6 +580,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Camera_Drag;
     private readonly InputAction m_Camera_Zoom;
     private readonly InputAction m_Camera_Focus;
+    private readonly InputAction m_Camera_Pan;
     /// <summary>
     /// Provides access to input actions defined in input action map "Camera".
     /// </summary>
@@ -586,6 +608,10 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Camera/Focus".
         /// </summary>
         public InputAction @Focus => m_Wrapper.m_Camera_Focus;
+        /// <summary>
+        /// Provides access to the underlying input action "Camera/Pan".
+        /// </summary>
+        public InputAction @Pan => m_Wrapper.m_Camera_Pan;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -624,6 +650,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Focus.started += instance.OnFocus;
             @Focus.performed += instance.OnFocus;
             @Focus.canceled += instance.OnFocus;
+            @Pan.started += instance.OnPan;
+            @Pan.performed += instance.OnPan;
+            @Pan.canceled += instance.OnPan;
         }
 
         /// <summary>
@@ -647,6 +676,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Focus.started -= instance.OnFocus;
             @Focus.performed -= instance.OnFocus;
             @Focus.canceled -= instance.OnFocus;
+            @Pan.started -= instance.OnPan;
+            @Pan.performed -= instance.OnPan;
+            @Pan.canceled -= instance.OnPan;
         }
 
         /// <summary>
@@ -844,6 +876,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFocus(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pan" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPan(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Cube" which allows adding and removing callbacks.
