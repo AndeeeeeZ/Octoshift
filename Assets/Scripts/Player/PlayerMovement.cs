@@ -1,3 +1,4 @@
+using System.Net.Security;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerInput input;
     private StickToWall stickToWall; 
+    private SpriteRenderer sr; 
     private Rigidbody rb;
     private float moveDirection = 0f;
 
@@ -19,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
         input = new PlayerInput();
         rb = GetComponent<Rigidbody>();
         stickToWall = GetComponent<StickToWall>(); 
+        sr = GetComponent<SpriteRenderer>(); 
     }
 
     private void FixedUpdate()
@@ -46,6 +49,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnMove(InputAction.CallbackContext context)
     {
         moveDirection = context.ReadValue<float>();
+        sr.flipX = moveDirection < 0f; 
     }
 
     private void OnStopMoving(InputAction.CallbackContext context)
