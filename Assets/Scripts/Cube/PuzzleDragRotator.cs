@@ -56,8 +56,8 @@ public class PuzzleDragRotator : MonoBehaviour
             out faceUpLocal);
 
         worldAxis = Vector3.zero;
-        
-        return true; 
+
+        return true;
     }
 
     public void UpdateDrag(Vector2 mouseDelta)
@@ -108,57 +108,95 @@ public class PuzzleDragRotator : MonoBehaviour
                 selectedBlock,
                 axis);
 
+        if (!CanRotate(
+                region,
+                selectedBlock.transform.position,
+                worldAxis,
+                rotationDirection * 90f))
+        {
+            Debug.LogWarning("The current rotate will result in a collision"); 
+            return; 
+        }
+
         regionRotator.RotateRegion(
             region,
             selectedBlock.transform.position,
             worldAxis,
-            rotationDirection * 90f); 
+            rotationDirection * 90f);
+    }
+
+    private bool CanRotate(
+        List<BlockNode> region,
+        Vector3 pivot,
+        Vector3 axis,
+        float angle)
+    {
+        HashSet<Vector3Int> occupied = new();
+
+        // All blocks NOT in moving region
+        BlockNode[] allBlocks =
+            FindObjectsByType<BlockNode>(
+                FindObjectsSortMode.None);
+
+        foreach (BlockNode block in allBlocks)
+        {
+            if (region.Contains(block))
+                continue;
+
+            occupied.Add(
+                Vector3Int.RoundToInt(
+                    block.transform.position));
+        }
+
+        Quaternion rotation =
+            Quaternion.AngleAxis(angle, axis);
+
+        foreach (BlockNode block in region)
+        {
+            Vector3 offset =
+                block.transform.position - pivot;
+
+            Vector3 rotated =
+                rotation * offset;
+
+            Vector3 targetPos =
+                pivot + rotated;
+
+            Vector3Int gridPos =
+                Vector3Int.RoundToInt(targetPos);
+
+            if (occupied.Contains(gridPos))
+                return false;
+        }
+
+        return true;
     }
 
     private void LockAxis(Vector3 localDragOnFace)
     {
-        float rightAmount =
-            Vector3.Dot(
-                localDragOnFace,
-                faceRightLocal);
+        float rightAmount = Vector3.Dot(localDragOnFace, faceRightLocal);
 
-        float upAmount =
-            Vector3.Dot(
-                localDragOnFace,
-                faceUpLocal);
+        float upAmount = Vector3.Dot(localDragOnFace, faceUpLocal);
 
         float dragAmount;
 
-        if (Mathf.Abs(rightAmount) >
-            Mathf.Abs(upAmount))
+        if (Mathf.Abs(rightAmount) > Mathf.Abs(upAmount))
         {
-            chosenTangentLocal =
-                faceRightLocal;
+            chosenTangentLocal = faceRightLocal;
 
-            dragAmount =
-                rightAmount;
+            dragAmount = rightAmount;
         }
         else
         {
-            chosenTangentLocal =
-                faceUpLocal;
+            chosenTangentLocal = faceUpLocal;
 
-            dragAmount =
-                upAmount;
+            dragAmount = upAmount;
         }
 
-        worldAxis =
-            (
-                startRotation *
-                Vector3.Cross(
-                    localFaceNormal,
-                    chosenTangentLocal)
-            ).normalized;
+        worldAxis = (
+                startRotation * Vector3.Cross(localFaceNormal, chosenTangentLocal)).normalized;
 
-        rotationDirection =
-            dragAmount >= 0f
-            ? 1
-            : -1;
+        rotationDirection = dragAmount >= 0f ? 1 : -1;
 
         axisLocked = true;
     }
