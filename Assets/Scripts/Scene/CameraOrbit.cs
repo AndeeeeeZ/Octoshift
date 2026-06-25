@@ -68,7 +68,6 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnPan(InputAction.CallbackContext context)
     {
-        Debug.Log("On pan");
         panning = context.ReadValueAsButton();
 
         if (!panning)
