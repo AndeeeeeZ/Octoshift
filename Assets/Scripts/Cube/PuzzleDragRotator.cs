@@ -6,6 +6,7 @@ public class PuzzleDragRotator : MonoBehaviour
     [SerializeField] private FloatValue dragThreshold;
 
     [SerializeField] private RegionRotator regionRotator;
+    [SerializeField] private PlayerMovement playerMovement; 
 
     private BlockNode selectedBlock;
 
@@ -103,11 +104,18 @@ public class PuzzleDragRotator : MonoBehaviour
 
         Axis axis = ToAxis(worldAxis);
 
+        if (!playerMovement.IsAtStablePosition())
+        {
+            Debug.LogWarning("Can not rotate when the player is not at a stable position"); 
+            return; 
+        }
+
         List<BlockNode> region =
             GraphTraversal.FindMovingRegion(
                 selectedBlock,
                 axis);
 
+        // Check if the current rotating is going to cause two blocks to collide or overlap 
         if (!CanRotate(
                 region,
                 selectedBlock.transform.position,

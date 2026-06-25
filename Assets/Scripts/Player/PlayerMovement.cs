@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private GroundDetection groundDetection;
 
     private PlayerInput input;
+    private StickToWall stickToWall; 
     private Rigidbody rb;
     private float moveDirection = 0f;
 
@@ -17,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     {
         input = new PlayerInput();
         rb = GetComponent<Rigidbody>();
+        stickToWall = GetComponent<StickToWall>(); 
     }
 
     private void FixedUpdate()
@@ -100,5 +102,28 @@ public class PlayerMovement : MonoBehaviour
     }
 
     #endregion
+
+    // Check is player is attached to a block and if is not moving and grounded
+    public bool IsAtStablePosition()
+    {
+        if (rb.linearVelocity.sqrMagnitude > 0.1f)
+        {
+            Debug.LogWarning("Player is moving"); 
+            return false; 
+        }
+
+        if (!stickToWall.IsOnABlock())
+        {
+            Debug.LogWarning("Player is not on a block");
+            return false;  
+        }
+
+        if (!groundDetection.IsGrounded())
+        {
+            Debug.LogWarning("Player is not grounded"); 
+            return false; 
+        }
+        return true; 
+    }
 
 }

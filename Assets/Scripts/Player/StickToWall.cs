@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// NOTE: should be disabled during rotation to prevent re-parenting mid rotation
 public class StickToWall : MonoBehaviour
 {
     [SerializeField] private float rayDistance = 1f;
@@ -39,5 +40,10 @@ public class StickToWall : MonoBehaviour
                 player.transform.SetParent(null, true);
             }
         }
+    }
+
+    public bool IsOnABlock()
+    {
+        return currStickTarget != null; 
     }
 }
