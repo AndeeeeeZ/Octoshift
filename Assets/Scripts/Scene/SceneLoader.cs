@@ -18,4 +18,9 @@ public class SceneLoader : MonoBehaviour
     {
         SceneManager.LoadScene(name, LoadSceneMode.Single); 
     }
+
+    public void SetTargetSceneName(string n)
+    {
+        targetSceneName = n; 
+    }
 }

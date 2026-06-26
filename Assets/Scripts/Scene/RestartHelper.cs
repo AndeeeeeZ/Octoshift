@@ -1,15 +1,15 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 
 public class RestartHelper : MonoBehaviour
 {
+    public UnityEvent ToReloadCurrScene; 
     private PlayerInput input;
 
     private void Awake()
     {
         input = new PlayerInput(); 
-    
     }
 
     private void OnEnable()
@@ -26,6 +26,6 @@ public class RestartHelper : MonoBehaviour
 
     public void ReloadScene(InputAction.CallbackContext context)
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        ToReloadCurrScene?.Invoke(); 
     }
 }
