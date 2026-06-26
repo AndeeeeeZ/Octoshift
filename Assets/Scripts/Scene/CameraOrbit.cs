@@ -3,9 +3,17 @@ using UnityEngine.InputSystem;
 
 public class CameraOrbit : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private Transform orbitPivot;
     [SerializeField] private Transform player;
-    [SerializeField] private float sensitivity, panSensitivity;
+
+    [Header("Controls")]
+    [SerializeField] private float sensitivity = 0.2f;
+    [SerializeField] private float panSensitivity = 1f;
+
+    [Header("Focus")]
+    [SerializeField] private float focusMoveSpeed = 8f;
+    [SerializeField] private float focusRotateSpeed = 8f;
 
     private PlayerInput input;
 
@@ -18,6 +26,10 @@ public class CameraOrbit : MonoBehaviour
 
     private Camera cam;
 
+    private Vector3 targetPosition;
+    private Quaternion targetRotation;
+    private bool focusing;
+
     private void Awake()
     {
         input = new PlayerInput();
@@ -26,7 +38,10 @@ public class CameraOrbit : MonoBehaviour
 
     private void Start()
     {
-        Focus(); 
+        targetPosition = orbitPivot.position;
+        targetRotation = orbitPivot.rotation;
+
+        Focus();
     }
 
     private void OnEnable()
@@ -69,6 +84,10 @@ public class CameraOrbit : MonoBehaviour
     private void OnDrag(InputAction.CallbackContext context)
     {
         rotating = context.ReadValueAsButton();
+
+        // Cancel focus if the player manually rotates the camera
+        if (rotating)
+            focusing = false;
     }
 
     private void OnPan(InputAction.CallbackContext context)
@@ -77,6 +96,9 @@ public class CameraOrbit : MonoBehaviour
 
         if (!panning)
             return;
+
+        // Cancel focus if the player manually pans the camera
+        focusing = false;
 
         // Plane parallel to the screen through the pivot
         panPlane = new Plane(transform.forward, orbitPivot.position);
@@ -91,22 +113,25 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnFocus(InputAction.CallbackContext context)
     {
-        Focus(); 
+        Focus();
     }
 
     private void Focus()
     {
-        orbitPivot.position = player.position;
+        targetPosition = player.position;
 
-        orbitPivot.rotation = Quaternion.LookRotation(
+        targetRotation = Quaternion.LookRotation(
             player.forward,
             player.up);
+
+        focusing = true;
     }
 
     private void LateUpdate()
     {
         HandlePan();
         HandleRotation();
+        HandleFocus();
     }
 
     private void HandleRotation()
@@ -151,6 +176,34 @@ public class CameraOrbit : MonoBehaviour
         if (panPlane.Raycast(ray, out enter))
         {
             lastPanPoint = ray.GetPoint(enter);
+        }
+    }
+
+    private void HandleFocus()
+    {
+        if (!focusing)
+            return;
+
+        // Exponential smoothing for consistent movement
+        float moveT = 1f - Mathf.Exp(-focusMoveSpeed * Time.deltaTime);
+        float rotateT = 1f - Mathf.Exp(-focusRotateSpeed * Time.deltaTime);
+
+        orbitPivot.position = Vector3.Lerp(
+            orbitPivot.position,
+            targetPosition,
+            moveT);
+
+        orbitPivot.rotation = Quaternion.Slerp(
+            orbitPivot.rotation,
+            targetRotation,
+            rotateT);
+
+        if (Vector3.Distance(orbitPivot.position, targetPosition) < 0.01f &&
+            Quaternion.Angle(orbitPivot.rotation, targetRotation) < 0.2f)
+        {
+            orbitPivot.position = targetPosition;
+            orbitPivot.rotation = targetRotation;
+            focusing = false;
         }
     }
 }
