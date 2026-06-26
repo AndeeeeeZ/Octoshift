@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class PuzzleDragRotator : MonoBehaviour
 {
+    [SerializeField] private MessageController messageController; 
     [SerializeField] private FloatValue dragThreshold;
 
     [SerializeField] private RegionRotator regionRotator;
@@ -123,6 +124,7 @@ public class PuzzleDragRotator : MonoBehaviour
                 rotationDirection * 90f))
         {
             Debug.LogWarning("The current rotate will result in a collision"); 
+            messageController.DisplayMessage("This rotation will cause a collision!"); 
             return; 
         }
 

@@ -282,6 +282,34 @@
                     "isPartOfComposite": false
                 }
             ]
+        },
+        {
+            "name": "Scene",
+            "id": "ab4362e0-45f4-47fe-add4-a03dd847d49f",
+            "actions": [
+                {
+                    "name": "Restart",
+                    "type": "Button",
+                    "id": "eb4252cb-30a9-47e0-8bf2-dc10cd8cd1c1",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f0bc8ec6-58be-4411-bf0c-c95299953853",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Restart",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []

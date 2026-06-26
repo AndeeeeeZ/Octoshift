@@ -1,3 +1,4 @@
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Components")]
     [SerializeField] private GroundDetection groundDetection;
     [SerializeField] private SoundEffectPlayer soundEffectPlayer; 
+    [SerializeField] private MessageController messageController;
 
     private PlayerInput input;
     private StickToWall stickToWall;
@@ -74,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
         if (!groundDetection.IsGrounded())
         {
             Debug.LogWarning("Attempted jump but not grounded");
+            messageController.DisplayMessage("You can't jump unless you are on the floor!"); 
             return;
         }
         PerformJump();
@@ -122,18 +125,21 @@ public class PlayerMovement : MonoBehaviour
         if (rb.linearVelocity.sqrMagnitude > 0.1f)
         {
             Debug.LogWarning("Player is moving");
+            messageController.DisplayMessage("Player can't be moving during rotation!"); 
             return false;
         }
 
         if (!stickToWall.IsOnABlock())
         {
             Debug.LogWarning("Player is not on a block");
+            messageController.DisplayMessage("Player should be fully on a cube during rotation!"); 
             return false;
         }
 
         if (!groundDetection.IsGrounded())
         {
             Debug.LogWarning("Player is not grounded");
+            messageController.DisplayMessage("Player should be standing on the floor during rotation!"); 
             return false;
         }
         return true;
