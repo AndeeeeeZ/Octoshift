@@ -535,7 +535,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -35.899986}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &79662147
@@ -8874,8 +8874,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -35.9}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.14999962}
+  m_SizeDelta: {x: 0, y: -0.29999924}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &781974970
 MonoBehaviour:
@@ -10309,7 +10309,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -35.899986}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1158272570
@@ -11740,8 +11740,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: 39.19999}
-  m_SizeDelta: {x: 500, y: 310}
+  m_AnchoredPosition: {x: -1.1000631, y: 0.69356346}
+  m_SizeDelta: {x: 127.0973, y: 61.2338}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1455337132
 MonoBehaviour:
@@ -11831,7 +11831,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5678b0652ce90b74496c9be41dec3dda, type: 3}
+  m_Sprite: {fileID: 551729298, guid: 99f8bea1a31a7ee42826d39b7f04b717, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12875,8 +12875,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000030517578, y: -17.6}
-  m_SizeDelta: {x: 500, y: 310}
+  m_AnchoredPosition: {x: -1.1000631, y: -55.1}
+  m_SizeDelta: {x: 127.0973, y: 61.2338}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1668781980
 MonoBehaviour:
@@ -12966,7 +12966,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5678b0652ce90b74496c9be41dec3dda, type: 3}
+  m_Sprite: {fileID: 551729298, guid: 99f8bea1a31a7ee42826d39b7f04b717, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -13894,8 +13894,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 96.2}
-  m_SizeDelta: {x: 500, y: 310}
+  m_AnchoredPosition: {x: -1.1, y: 57.8}
+  m_SizeDelta: {x: 127.0973, y: 61.2338}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1905222840
 MonoBehaviour:
@@ -13985,7 +13985,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5678b0652ce90b74496c9be41dec3dda, type: 3}
+  m_Sprite: {fileID: 551729298, guid: 99f8bea1a31a7ee42826d39b7f04b717, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -14405,6 +14405,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2032172430}
   - component: {fileID: 2032172431}
+  - component: {fileID: 2032172432}
   m_Layer: 5
   m_Name: Timeline director
   m_TagString: Untagged
@@ -14441,7 +14442,7 @@ PlayableDirector:
   m_Enabled: 1
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: fc3276f2247f1a44cb84da780dd60b12, type: 2}
-  m_InitialState: 1
+  m_InitialState: 0
   m_WrapMode: 2
   m_DirectorUpdateMode: 1
   m_InitialTime: 0
@@ -14450,6 +14451,34 @@ PlayableDirector:
     value: {fileID: 2146287972}
   m_ExposedReferences:
     m_References: []
+--- !u!114 &2032172432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032172429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2368a66a622ba8d4c9238d907fc5b54a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoidEventListener
+  Event: {fileID: 11400000, guid: 40f6d730d9bb4a1429c2e605bf64e801, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2032172431}
+        m_TargetAssemblyTypeName: UnityEngine.Playables.PlayableDirector, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2035769225
 GameObject:
   m_ObjectHideFlags: 0
