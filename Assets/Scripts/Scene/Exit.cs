@@ -4,7 +4,7 @@ using UnityEngine.Events;
 public class Exit : MonoBehaviour
 {
     [SerializeField] private bool DEBUG; 
-    public UnityEvent OnReachingExit; 
+    public VoidEvent OnReachingExit; 
     private readonly string playerTag = "Player";
     private bool hasReachedExit;
 
@@ -20,7 +20,7 @@ public class Exit : MonoBehaviour
         {
             if (DEBUG)
                 Debug.Log("Player has reached the exit"); 
-            OnReachingExit?.Invoke();
+            OnReachingExit.Raise(); 
             hasReachedExit = true;  
         }    
     
