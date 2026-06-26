@@ -8,11 +8,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float jumpForce;
     [Header("Components")]
     [SerializeField] private GroundDetection groundDetection;
-    [SerializeField] private SoundEffectPlayer soundEffectPlayer; 
+    [SerializeField] private SoundEffectPlayer soundEffectPlayer;
     [SerializeField] private MessageController messageController;
 
     private PlayerInput input;
     private StickToWall stickToWall;
+    private CustomGravity customGravity;
     private Animator animator;
     private SpriteRenderer sr;
     private Rigidbody rb;
@@ -25,11 +26,13 @@ public class PlayerMovement : MonoBehaviour
         stickToWall = GetComponent<StickToWall>();
         sr = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+        customGravity = GetComponent<CustomGravity>();
     }
 
     private void Update()
     {
         UpdateAnimations();
+        UpdateGravity();
     }
 
     private void FixedUpdate()
@@ -42,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
     {
         input.Enable();
         input.Player.Jump.performed += OnJump;
+        input.Player.Jump.canceled += OnReleaseJump;
         input.Player.Move.performed += OnMove;
         input.Player.Move.canceled += OnStopMoving;
     }
@@ -49,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnDisable()
     {
         input.Player.Jump.performed -= OnJump;
+        input.Player.Jump.canceled -= OnReleaseJump;
         input.Player.Move.performed -= OnMove;
         input.Player.Move.canceled -= OnStopMoving;
         input.Disable();
@@ -75,12 +80,18 @@ public class PlayerMovement : MonoBehaviour
         if (!groundDetection.IsGrounded())
         {
             Debug.LogWarning("Attempted jump but not grounded");
-            messageController.DisplayMessage("You can't jump unless you are on the floor!"); 
+            messageController.DisplayMessage("You can't jump unless you are on the floor!");
             return;
         }
         PerformJump();
-        animator.SetTrigger("jump"); 
-        soundEffectPlayer.PlayClip(); 
+        animator.SetTrigger("jump");
+        soundEffectPlayer.PlayClip();
+        customGravity.Jumping();
+    }
+
+    private void OnReleaseJump(InputAction.CallbackContext context)
+    {
+        customGravity.Falling();
     }
 
     #endregion
@@ -124,21 +135,21 @@ public class PlayerMovement : MonoBehaviour
         if (rb.linearVelocity.sqrMagnitude > 0.1f)
         {
             Debug.LogWarning("Player is moving");
-            messageController.DisplayMessage("Player can't be moving during rotation!"); 
+            messageController.DisplayMessage("Player can't be moving during rotation!");
             return false;
         }
 
         if (!stickToWall.IsOnABlock())
         {
             Debug.LogWarning("Player is not on a block");
-            messageController.DisplayMessage("Player should be fully on a cube during rotation!"); 
+            messageController.DisplayMessage("Player should be fully on a cube during rotation!");
             return false;
         }
 
         if (!groundDetection.IsGrounded())
         {
             Debug.LogWarning("Player is not grounded");
-            messageController.DisplayMessage("Player should be standing on the floor during rotation!"); 
+            messageController.DisplayMessage("Player should be standing on the floor during rotation!");
             return false;
         }
         return true;
@@ -146,8 +157,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void UpdateAnimations()
     {
-        float verticalSpeed =
-            Vector3.Dot(rb.linearVelocity, transform.up);
+        float verticalSpeed = Vector3.Dot(rb.linearVelocity, transform.up);
 
         bool grounded = groundDetection.IsGrounded();
 
@@ -156,7 +166,18 @@ public class PlayerMovement : MonoBehaviour
         // Moving animation
         animator.SetBool("isMoving", Mathf.Abs(moveDirection) > 0.01f && grounded);
 
-        animator.SetBool("falling", !grounded && verticalSpeed < -0.1f);
+        animator.SetBool("falling", !grounded && verticalSpeed < 0f);
+    }
+
+    private void UpdateGravity()
+    {
+        float verticalSpeed = Vector3.Dot(rb.linearVelocity, transform.up);
+
+        bool grounded = groundDetection.IsGrounded();
+        if (!grounded && verticalSpeed < -0.1f)
+        {
+            customGravity.Falling();
+        }
     }
 
 }

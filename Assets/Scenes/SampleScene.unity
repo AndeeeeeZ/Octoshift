@@ -937,7 +937,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 121
+  Priority: 187
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -7220,8 +7220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b98bd793690ae8439010a31a531d819, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  moveSpeed: 5
-  jumpForce: 10
+  moveSpeed: 4
+  jumpForce: 6.3
   groundDetection: {fileID: 518616820}
   soundEffectPlayer: {fileID: 385577721}
   messageController: {fileID: 722858359}
@@ -7254,7 +7254,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e059b20b4f007d43b7bf7e1825190ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CustomGravity
-  gravityStrength: 20
+  jumpGravityStrength: 10
+  fallGravityStrength: 25
 --- !u!114 &365192245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11142,8 +11143,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.2421293, y: 1.9206538, z: 0.10000001}
-  m_Center: {x: 0.20393889, y: -0.40345985, z: 0}
+  m_Size: {x: 2.329335, y: 2.1125658, z: 0.1858946}
+  m_Center: {x: 0.16033724, y: -0.3075048, z: -0.0028591424}
 --- !u!114 &1320322257
 MonoBehaviour:
   m_ObjectHideFlags: 0
