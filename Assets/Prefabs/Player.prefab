@@ -562,4 +562,4 @@ MonoBehaviour:
     m_Bits: 64
   checkDistance: 0
   checkRadius: 0.03
-  horizontalOffset: 0.25
+  horizontalOffset: 0.2
