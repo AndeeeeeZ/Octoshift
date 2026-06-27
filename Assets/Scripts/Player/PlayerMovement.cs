@@ -167,7 +167,7 @@ public class PlayerMovement : MonoBehaviour
         // Moving animation
         animator.SetBool("isMoving", Mathf.Abs(moveDirection) > 0.01f && grounded);
 
-        animator.SetBool("falling", !grounded && verticalSpeed < 0f);
+        animator.SetBool("falling", !grounded && verticalSpeed < 0.01f);
     }
 
     private void UpdateGravity()
