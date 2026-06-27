@@ -14,6 +14,7 @@ public class CameraOrbit : MonoBehaviour
     [Header("Focus")]
     [SerializeField] private float focusMoveSpeed = 8f;
     [SerializeField] private float focusRotateSpeed = 8f;
+    [SerializeField] private FloatValue focusAngleOffsetX, focusAngleOffsetY;
 
     private PlayerInput input;
 
@@ -30,7 +31,7 @@ public class CameraOrbit : MonoBehaviour
     private Quaternion targetRotation;
     private bool focusing;
 
-    private PlayerMovement playerMovement; 
+    private PlayerMovement playerMovement;
 
     private void Awake()
     {
@@ -40,7 +41,7 @@ public class CameraOrbit : MonoBehaviour
 
     private void Start()
     {
-        playerMovement = player.GetComponent<PlayerMovement>(); 
+        playerMovement = player.GetComponent<PlayerMovement>();
 
         targetPosition = orbitPivot.position;
         targetRotation = orbitPivot.rotation;
@@ -124,9 +125,16 @@ public class CameraOrbit : MonoBehaviour
     {
         targetPosition = playerMovement.GetCurrBlockPosition();
 
-        targetRotation = Quaternion.LookRotation(
+        Quaternion playerRotation = Quaternion.LookRotation(
             player.forward,
             player.up);
+
+        Quaternion offset = Quaternion.Euler(
+            focusAngleOffsetX.Value,
+            focusAngleOffsetY.Value,
+            0f);
+
+        targetRotation = playerRotation * offset;
 
         focusing = true;
     }

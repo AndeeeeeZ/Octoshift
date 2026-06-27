@@ -11293,6 +11293,8 @@ MonoBehaviour:
   panSensitivity: 0.75
   focusMoveSpeed: 8
   focusRotateSpeed: 8
+  focusAngleOffsetX: {fileID: 11400000, guid: 2ddce60f6a31b3f479f7a1ff29ea2e6f, type: 2}
+  focusAngleOffsetY: {fileID: 11400000, guid: acbf99364212b4a449c7869f6fd232ab, type: 2}
 --- !u!4 &1223120867
 Transform:
   m_ObjectHideFlags: 0
