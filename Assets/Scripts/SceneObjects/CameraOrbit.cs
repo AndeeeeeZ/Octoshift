@@ -30,6 +30,8 @@ public class CameraOrbit : MonoBehaviour
     private Quaternion targetRotation;
     private bool focusing;
 
+    private PlayerMovement playerMovement; 
+
     private void Awake()
     {
         input = new PlayerInput();
@@ -38,6 +40,8 @@ public class CameraOrbit : MonoBehaviour
 
     private void Start()
     {
+        playerMovement = player.GetComponent<PlayerMovement>(); 
+
         targetPosition = orbitPivot.position;
         targetRotation = orbitPivot.rotation;
 
@@ -118,7 +122,7 @@ public class CameraOrbit : MonoBehaviour
 
     private void Focus()
     {
-        targetPosition = player.position;
+        targetPosition = playerMovement.GetCurrBlockPosition();
 
         targetRotation = Quaternion.LookRotation(
             player.forward,

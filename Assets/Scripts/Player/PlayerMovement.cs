@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -178,6 +179,15 @@ public class PlayerMovement : MonoBehaviour
         {
             customGravity.Falling();
         }
+    }
+
+    public Vector3 GetCurrBlockPosition()
+    {
+        if(stickToWall.IsOnABlock())
+        {
+            return stickToWall.GetCurrStickTargetPosition(); 
+        }
+        return transform.position; 
     }
 
 }

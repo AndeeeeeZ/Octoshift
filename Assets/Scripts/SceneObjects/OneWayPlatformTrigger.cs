@@ -13,9 +13,7 @@ public class OneWayPlatformTrigger : MonoBehaviour
         if (rb == null)
             return;
 
-        // Moving toward the back of the platform?
-        bool passingUp =
-            Vector3.Dot(rb.linearVelocity, platform.transform.up) > 0f;
+        bool passingUp = Vector3.Dot(rb.linearVelocity, platform.transform.up) > 0f;
 
         if (passingUp)
         {

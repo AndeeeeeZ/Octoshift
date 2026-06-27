@@ -46,4 +46,10 @@ public class StickToWall : MonoBehaviour
     {
         return currStickTarget != null; 
     }
+
+    public Vector3 GetCurrStickTargetPosition()
+    {
+        if (currStickTarget == null) return Vector3.zero; 
+        return currStickTarget.transform.position; 
+    }
 }
