@@ -6,7 +6,12 @@ public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed;
+
+    [Header("Jump")]
     [SerializeField] private float jumpForce;
+    [SerializeField] private float coyoteTime = 0.15f;
+    [SerializeField] private float jumpBufferTime = 0.15f;
+
     [Header("Components")]
     [SerializeField] private GroundDetection groundDetection;
     [SerializeField] private SoundEffectPlayer soundEffectPlayer;
@@ -19,6 +24,8 @@ public class PlayerMovement : MonoBehaviour
     private SpriteRenderer sr;
     private Rigidbody rb;
     private float moveDirection = 0f;
+    private float coyoteTimer;
+    private float jumpBufferTimer;
 
     private void Awake()
     {
@@ -32,6 +39,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        UpdateJumpTimers();
+        TryBufferedJump();
+
         UpdateAnimations();
         UpdateGravity();
     }
@@ -78,16 +88,8 @@ public class PlayerMovement : MonoBehaviour
             Debug.LogError("Missing ground detection");
             return;
         }
-        if (!groundDetection.IsGrounded())
-        {
-            Debug.LogWarning("Attempted jump but not grounded");
-            messageController.DisplayMessage("You can't jump unless you are on the floor!");
-            return;
-        }
-        PerformJump();
-        animator.SetTrigger("jump");
-        soundEffectPlayer.PlayClip();
-        customGravity.Jumping();
+
+        jumpBufferTimer = jumpBufferTime;
     }
 
     private void OnReleaseJump(InputAction.CallbackContext context)
@@ -126,6 +128,42 @@ public class PlayerMovement : MonoBehaviour
         rb.linearVelocity = velocity;
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+    }
+
+    private void UpdateJumpTimers()
+    {
+        jumpBufferTimer = Mathf.Max(0f, jumpBufferTimer - Time.deltaTime);
+
+        if (groundDetection.IsGrounded())
+        {
+            coyoteTimer = coyoteTime;
+        }
+        else
+        {
+            coyoteTimer = Mathf.Max(0f, coyoteTimer - Time.deltaTime);
+        }
+    }
+
+    private void TryBufferedJump()
+    {
+        if (jumpBufferTimer <= 0f)
+        {
+            return;
+        }
+
+        if (coyoteTimer <= 0f)
+        {
+            return;
+        }
+
+        PerformJump();
+
+        animator.SetTrigger("jump");
+        soundEffectPlayer.PlayClip();
+        customGravity.Jumping();
+
+        jumpBufferTimer = 0f;
+        coyoteTimer = 0f;
     }
 
     #endregion
@@ -183,11 +221,11 @@ public class PlayerMovement : MonoBehaviour
 
     public Vector3 GetCurrBlockPosition()
     {
-        if(stickToWall.IsOnABlock())
+        if (stickToWall.IsOnABlock())
         {
-            return stickToWall.GetCurrStickTargetPosition(); 
+            return stickToWall.GetCurrStickTargetPosition();
         }
-        return transform.position; 
+        return transform.position;
     }
 
 }
