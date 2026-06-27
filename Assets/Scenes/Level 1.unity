@@ -512,14 +512,26 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 92199732}
         m_TargetAssemblyTypeName: SceneLoader, Assembly-CSharp
-        m_MethodName: LoadScene
+        m_MethodName: SetTargetSceneName
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: SampleScene
+          m_StringArgument: Level 1
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 548616343}
+        m_TargetAssemblyTypeName: UnityEngine.Playables.PlayableDirector, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &124879566
@@ -6634,6 +6646,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 333c214100e03f6458c52531aff6af99, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TransitionController
+--- !u!320 &548616343 stripped
+PlayableDirector:
+  m_CorrespondingSourceObject: {fileID: 5785627064819727687, guid: a32668ed6a37cb54394945fd898da8cd, type: 3}
+  m_PrefabInstance: {fileID: 6383907437090454644}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &575911818
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6756,7 +6773,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: Level 1
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 548616342}
