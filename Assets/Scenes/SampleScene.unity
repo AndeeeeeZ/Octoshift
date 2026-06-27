@@ -320,7 +320,7 @@ GameObject:
   - component: {fileID: 13827530}
   - component: {fileID: 13827529}
   m_Layer: 0
-  m_Name: Background Music
+  m_Name: Background Music Underwater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -345,7 +345,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 172
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
