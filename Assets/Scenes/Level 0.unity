@@ -10395,7 +10395,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PLAY IN FULLSCREEN FOR THIS TO WORK IN BROWSER!!!
+  m_text: PLAY IN FULL SCREEN FOR THIS TO WORK IN BROWSER!!!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b95285627884f174284da51cc1d63e06, type: 2}
   m_sharedMaterial: {fileID: -4476001016125914634, guid: b95285627884f174284da51cc1d63e06, type: 2}
