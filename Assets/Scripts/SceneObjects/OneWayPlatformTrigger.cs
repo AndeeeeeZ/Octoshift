@@ -13,12 +13,9 @@ public class OneWayPlatformTrigger : MonoBehaviour
         if (rb == null)
             return;
 
-        bool passingUp = Vector3.Dot(rb.linearVelocity, platform.transform.up) > 0f;
+        platform.IgnoreCollision(other, true);
+        Debug.Log("Ignore collision"); 
 
-        if (passingUp)
-        {
-            platform.IgnoreCollision(other, true);
-        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -27,5 +24,6 @@ public class OneWayPlatformTrigger : MonoBehaviour
             return;
 
         platform.IgnoreCollision(other, false);
+        Debug.Log("Restore collision"); 
     }
 }

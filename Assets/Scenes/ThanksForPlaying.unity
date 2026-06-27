@@ -709,7 +709,19 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: SampleScene
+          m_StringArgument: ThanksForPlaying
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 548616342}
+        m_TargetAssemblyTypeName: TransitionController, Assembly-CSharp
+        m_MethodName: PlayTransitionOut
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &120357474
@@ -8433,7 +8445,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: ThanksForPlaying
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 548616342}
@@ -12424,7 +12436,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: ThanksForPlaying
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 548616342}
@@ -14822,7 +14834,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: End Scene
           m_BoolArgument: 0
         m_CallState: 2
       - m_Target: {fileID: 548616342}

@@ -55,8 +55,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 4.0560303, y: 0.69391346, z: 0.3}
-  m_Center: {x: 0.04543495, y: 0.0063767433, z: 0}
+  m_Size: {x: 4.0560303, y: 0.60761774, z: 0.39126197}
+  m_Center: {x: 0.04543495, y: 0.049524605, z: -0.045630977}
 --- !u!212 &4471090816091127345
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -157,7 +157,7 @@ GameObject:
   - component: {fileID: 6088044898609043742}
   - component: {fileID: 1431751713096605915}
   - component: {fileID: 6182123762539414272}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -198,8 +198,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.4825325, y: 1.0843716, z: 0.3}
-  m_Center: {x: 0.038757324, y: 0.08348751, z: 0}
+  m_Size: {x: 3.4825325, y: 1.1079104, z: 0.41663972}
+  m_Center: {x: 0.038757324, y: 0.4280736, z: -0.05831985}
 --- !u!114 &6182123762539414272
 MonoBehaviour:
   m_ObjectHideFlags: 0
