@@ -9871,6 +9871,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5368800646093142225}
   - component: {fileID: 3552142677895500267}
+  - component: {fileID: 5884607570921363025}
   m_Layer: 0
   m_Name: Camera Orbit
   m_TagString: Untagged
@@ -9914,6 +9915,34 @@ MonoBehaviour:
   focusRotateSpeed: 8
   focusAngleOffsetX: {fileID: 11400000, guid: 2ddce60f6a31b3f479f7a1ff29ea2e6f, type: 2}
   focusAngleOffsetY: {fileID: 11400000, guid: acbf99364212b4a449c7869f6fd232ab, type: 2}
+--- !u!114 &5884607570921363025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7176704007392200527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2368a66a622ba8d4c9238d907fc5b54a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoidEventListener
+  Event: {fileID: 11400000, guid: 9f4b7b0d8694fe147bf6121b8c29a5d0, type: 2}
+  Response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3552142677895500267}
+        m_TargetAssemblyTypeName: CameraOrbit, Assembly-CSharp
+        m_MethodName: Focus
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8493365585207924905
 GameObject:
   m_ObjectHideFlags: 0

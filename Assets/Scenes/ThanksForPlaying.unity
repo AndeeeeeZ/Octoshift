@@ -2209,6 +2209,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   player: {fileID: 365192236}
+  OnReachingNewBlock: {fileID: 11400000, guid: 9f4b7b0d8694fe147bf6121b8c29a5d0, type: 2}
 --- !u!114 &365192244
 MonoBehaviour:
   m_ObjectHideFlags: 0

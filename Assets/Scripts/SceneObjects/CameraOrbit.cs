@@ -121,7 +121,7 @@ public class CameraOrbit : MonoBehaviour
         Focus();
     }
 
-    private void Focus()
+    public void Focus()
     {
         targetPosition = playerMovement.GetCurrBlockPosition();
 
