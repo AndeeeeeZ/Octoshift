@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class PuzzleDragRotator : MonoBehaviour
 {
+    private const float CancelRadiusPixels = 24f;
+
     [SerializeField] private MessageController messageController; 
     [SerializeField] private FloatValue dragThreshold;
 
@@ -21,28 +23,51 @@ public class PuzzleDragRotator : MonoBehaviour
     private Vector3 worldAxis;
     private Vector3 chosenTangentLocal;
 
-    private Transform dragCamera;
+    private Camera dragCamera;
+    private Vector3 faceCenterWorld;
+    private Vector2 pressPosition;
+    private bool hasDragged;
 
     private Quaternion startRotation;
 
     private int rotationDirection;
+    private CubeDragFeedback dragFeedback;
+
+    private void Update()
+    {
+        dragFeedback?.Tick(Time.deltaTime);
+    }
+
+    private void OnDisable()
+    {
+        CancelDrag();
+        dragFeedback?.HideImmediately();
+    }
+
+    private void OnDestroy()
+    {
+        dragFeedback?.Dispose();
+    }
 
     public bool BeginDrag(
         BlockNode block,
         Vector3 hitNormalWorld,
-        Transform cameraTransform)
+        Camera camera,
+        Vector2 mousePosition)
     {
         if (regionRotator.IsRotating)
             return false;
 
         selectedBlock = block;
 
-        dragCamera = cameraTransform;
+        dragCamera = camera;
 
         dragging = true;
         axisLocked = false;
 
         rotationDirection = 0;
+        pressPosition = mousePosition;
+        hasDragged = false;
 
         startRotation = block.transform.rotation;
 
@@ -59,23 +84,45 @@ public class PuzzleDragRotator : MonoBehaviour
 
         worldAxis = Vector3.zero;
 
+        BoxCollider cubeCollider = block.GetComponent<BoxCollider>();
+        dragFeedback ??= new CubeDragFeedback();
+        dragFeedback.Show(block, cubeCollider,
+            localFaceNormal, faceRightLocal, faceUpLocal,
+            camera, CancelRadiusPixels);
+        faceCenterWorld = dragFeedback.MarkerCenterWorld;
+
         return true;
     }
 
-    public void UpdateDrag(Vector2 mouseDelta)
+    public void UpdateDrag(Vector2 mousePosition)
     {
         if (!dragging)
             return;
 
-        if (axisLocked)
-            return;
+        Vector3 screenCenter = dragCamera.WorldToScreenPoint(faceCenterWorld);
+        Vector2 fromCenter = mousePosition -
+            new Vector2(screenCenter.x, screenCenter.y);
 
-        if (mouseDelta.sqrMagnitude <= 0.000001f)
+        if (screenCenter.z <= 0f ||
+            fromCenter.sqrMagnitude <= CancelRadiusPixels * CancelRadiusPixels)
+        {
+            ClearPlannedRotation();
             return;
+        }
+
+        // The press position only distinguishes a drag from a click.
+        if (!hasDragged)
+        {
+            if ((mousePosition - pressPosition).sqrMagnitude <
+                dragThreshold.Value * dragThreshold.Value)
+                return;
+
+            hasDragged = true;
+        }
 
         Vector3 worldDrag =
-            dragCamera.right * mouseDelta.x +
-            dragCamera.up * mouseDelta.y;
+            dragCamera.transform.right * fromCenter.x +
+            dragCamera.transform.up * fromCenter.y;
 
         Vector3 localDrag =
             Quaternion.Inverse(startRotation) *
@@ -86,19 +133,33 @@ public class PuzzleDragRotator : MonoBehaviour
                 localDrag,
                 localFaceNormal);
 
-        if (localDragOnFace.magnitude <
-            dragThreshold.Value * 0.001f)
+        if (localDragOnFace.magnitude < dragThreshold.Value)
+        {
+            ClearPlannedRotation();
             return;
+        }
 
-        LockAxis(localDragOnFace);
+        UpdateDirection(localDragOnFace,
+            fromCenter.magnitude - CancelRadiusPixels);
     }
 
-    public void EndDrag()
+    private void ClearPlannedRotation()
+    {
+        axisLocked = false;
+        rotationDirection = 0;
+        worldAxis = Vector3.zero;
+        dragFeedback?.CancelDirection();
+    }
+
+    public void EndDrag(Vector2 mousePosition)
     {
         if (!dragging)
             return;
 
+        UpdateDrag(mousePosition);
+
         dragging = false;
+        dragFeedback?.Hide();
 
         if (!axisLocked)
             return;
@@ -133,6 +194,13 @@ public class PuzzleDragRotator : MonoBehaviour
             selectedBlock.transform.position,
             worldAxis,
             rotationDirection * 90f);
+    }
+
+    public void CancelDrag()
+    {
+        dragging = false;
+        axisLocked = false;
+        dragFeedback?.Hide();
     }
 
     private bool CanRotate(
@@ -182,7 +250,7 @@ public class PuzzleDragRotator : MonoBehaviour
         return true;
     }
 
-    private void LockAxis(Vector3 localDragOnFace)
+    private void UpdateDirection(Vector3 localDragOnFace, float dragStrength)
     {
         float rightAmount = Vector3.Dot(localDragOnFace, faceRightLocal);
 
@@ -209,6 +277,8 @@ public class PuzzleDragRotator : MonoBehaviour
         rotationDirection = dragAmount >= 0f ? 1 : -1;
 
         axisLocked = true;
+        dragFeedback?.ShowDirection(chosenTangentLocal * rotationDirection,
+            dragStrength);
     }
 
     private static Axis ToAxis(Vector3 axis)

@@ -8,8 +8,6 @@ public class CubeInteractor : MonoBehaviour
     [SerializeField] private LayerMask cubeLayer = ~0;
 
     private PlayerInput input;
-    private Vector2 mousePosition;
-    private Vector2 mouseDelta;
     private bool dragging;
 
     private void Awake()
@@ -21,17 +19,15 @@ public class CubeInteractor : MonoBehaviour
     {
         input.Enable();
 
-        input.Cube.Look.performed += OnLook;
-        input.Cube.Look.canceled += OnLook;
-
         input.Cube.Drag.performed += OnDrag;
         input.Cube.Drag.canceled += OnDrag;
     }
 
     private void OnDisable()
     {
-        input.Cube.Look.performed -= OnLook;
-        input.Cube.Look.canceled -= OnLook;
+        if (dragging && activeRotator != null)
+            activeRotator.CancelDrag();
+        dragging = false;
 
         input.Cube.Drag.performed -= OnDrag;
         input.Cube.Drag.canceled -= OnDrag;
@@ -43,14 +39,8 @@ public class CubeInteractor : MonoBehaviour
     {
         if (dragging && activeRotator != null)
         {
-            activeRotator.UpdateDrag(mouseDelta);
+            activeRotator.UpdateDrag(Mouse.current.position.ReadValue());
         }
-    }
-
-    private void OnLook(InputAction.CallbackContext context)
-    {
-        mouseDelta = context.ReadValue<Vector2>();
-        mousePosition = Mouse.current.position.ReadValue();
     }
 
     private void OnDrag(InputAction.CallbackContext context)
@@ -63,7 +53,7 @@ public class CubeInteractor : MonoBehaviour
         {
             if (dragging && activeRotator != null)
             {
-                activeRotator.EndDrag();
+                activeRotator.EndDrag(Mouse.current.position.ReadValue());
             }
             dragging = false;
         }
@@ -74,7 +64,8 @@ public class CubeInteractor : MonoBehaviour
         if (orbitCamera == null)
             return;
 
-        Ray ray = orbitCamera.ScreenPointToRay(mousePosition);
+        // Read the pointer at press time; Look may not have fired before the click.
+        Ray ray = orbitCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
 
         if (!Physics.Raycast(ray, out RaycastHit hit, 100f, cubeLayer))
             return;
@@ -93,7 +84,8 @@ public class CubeInteractor : MonoBehaviour
             return;
         }
 
-        dragging = activeRotator.BeginDrag(block, hit.normal, orbitCamera.transform);
+        dragging = activeRotator.BeginDrag(block, hit.normal, orbitCamera,
+            Mouse.current.position.ReadValue());
 
     }
 }
