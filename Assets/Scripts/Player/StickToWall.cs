@@ -8,6 +8,16 @@ public class StickToWall : MonoBehaviour
     [SerializeField] private GameObject player;
     [SerializeField] private VoidEvent OnReachingNewBlock; 
     private BlockNode currStickTarget;
+    private bool suppressAutoFocusOnNextDetection;
+
+    public bool SuppressAutoFocus => suppressAutoFocusOnNextDetection;
+
+    private void OnDisable()
+    {
+        // Rotation temporarily disables this detector while the player stays on its block.
+        suppressAutoFocusOnNextDetection = currStickTarget != null;
+    }
+
     private void LateUpdate()
     {
         Ray ray = new Ray(transform.position, transform.forward);
@@ -22,6 +32,8 @@ public class StickToWall : MonoBehaviour
                 player.transform.SetParent(currStickTarget.transform, true);
                 OnReachingNewBlock.Raise(); 
             }
+
+            suppressAutoFocusOnNextDetection = false;
         }
         else
         {

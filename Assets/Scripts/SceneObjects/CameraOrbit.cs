@@ -32,6 +32,7 @@ public class CameraOrbit : MonoBehaviour
     private bool focusing;
 
     private PlayerMovement playerMovement;
+    private StickToWall stickToWall;
 
     private void Awake()
     {
@@ -42,11 +43,12 @@ public class CameraOrbit : MonoBehaviour
     private void Start()
     {
         playerMovement = player.GetComponent<PlayerMovement>();
+        stickToWall = player.GetComponent<StickToWall>();
 
         targetPosition = orbitPivot.position;
         targetRotation = orbitPivot.rotation;
 
-        Focus();
+        SetFocus();
     }
 
     private void OnEnable()
@@ -118,10 +120,18 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnFocus(InputAction.CallbackContext context)
     {
-        Focus();
+        SetFocus();
     }
 
     public void Focus()
+    {
+        if (stickToWall.SuppressAutoFocus)
+            return;
+
+        SetFocus();
+    }
+
+    private void SetFocus()
     {
         targetPosition = playerMovement.GetCurrBlockPosition();
 
