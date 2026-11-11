@@ -9909,7 +9909,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraOrbit
   orbitPivot: {fileID: 7881209501028152730}
   player: {fileID: 0}
-  sensitivity: 0.4
+  sensitivity: 0.15
   panSensitivity: 0.75
   focusMoveSpeed: 8
   focusRotateSpeed: 8
