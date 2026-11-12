@@ -20,6 +20,7 @@ public class CameraOrbit : MonoBehaviour
 
     private Vector2 lookInput;
     private bool rotating;
+    private Vector3 orbitUp;
 
     private bool panning;
     private Plane panPlane;
@@ -48,7 +49,7 @@ public class CameraOrbit : MonoBehaviour
         targetPosition = orbitPivot.position;
         targetRotation = orbitPivot.rotation;
 
-        SetFocus();
+        SetAutoFocus();
     }
 
     private void OnEnable()
@@ -92,9 +93,12 @@ public class CameraOrbit : MonoBehaviour
     {
         rotating = context.ReadValueAsButton();
 
-        // Cancel focus if the player manually rotates the camera
         if (rotating)
+        {
+            // Use the current view as the reference for this drag, including after panning.
+            orbitUp = orbitPivot.up;
             focusing = false;
+        }
     }
 
     private void OnPan(InputAction.CallbackContext context)
@@ -120,7 +124,7 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnFocus(InputAction.CallbackContext context)
     {
-        SetFocus();
+        SetFaceFocus(player.position);
     }
 
     public void Focus()
@@ -128,13 +132,16 @@ public class CameraOrbit : MonoBehaviour
         if (stickToWall.SuppressAutoFocus)
             return;
 
-        SetFocus();
+        SetAutoFocus();
     }
 
-    private void SetFocus()
+    private void SetAutoFocus()
     {
-        targetPosition = playerMovement.GetCurrBlockPosition();
+        SetFaceFocus(playerMovement.GetCurrBlockPosition());
+    }
 
+    private void SetFaceFocus(Vector3 position)
+    {
         Quaternion playerRotation = Quaternion.LookRotation(
             player.forward,
             player.up);
@@ -144,8 +151,8 @@ public class CameraOrbit : MonoBehaviour
             focusAngleOffsetY.Value,
             0f);
 
+        targetPosition = position;
         targetRotation = playerRotation * offset;
-
         focusing = true;
     }
 
@@ -161,12 +168,11 @@ public class CameraOrbit : MonoBehaviour
         if (!rotating)
             return;
 
-        Vector3 up = orbitPivot.up;
         Vector3 right = orbitPivot.right;
 
         Quaternion yaw = Quaternion.AngleAxis(
             lookInput.x * sensitivity,
-            up);
+            orbitUp);
 
         Quaternion pitch = Quaternion.AngleAxis(
             -lookInput.y * sensitivity,
