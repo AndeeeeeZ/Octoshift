@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Cube Drag Feedback Settings
   m_EditorClassIdentifier: Assembly-CSharp::CubeDragFeedbackSettings
   cancelRadiusPixels: 24
-  sphereColor: {r: 1, g: 0.82, b: 0.2, a: 1}
-  arrowColor: {r: 0, g: 0, b: 0, a: 1}
-  arrowOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  sphereColor: {r: 0.3019608, g: 0.46316352, b: 0.5372549, a: 1}
+  arrowColor: {r: 0.5568628, g: 0.6898956, b: 0.7176471, a: 1}
+  arrowOutlineColor: {r: 0, g: 0.14144465, b: 0.28627452, a: 1}
   cancelRingColor: {r: 0, g: 0, b: 0, a: 1}
-  arrowOutlineThickness: 0.012
-  cancelRingThicknessPixels: 2
+  arrowOutlineThickness: 0.03
+  cancelRingThicknessPixels: 4
   fadeInSeconds: 0.2
-  fadeOutSeconds: 0.35
-  stretchSeconds: 0.14
+  fadeOutSeconds: 0.2
+  stretchSeconds: 0.3
   minimumArrowLength: 0.55
   maximumArrowLength: 1.3
-  fullStretchPixels: 80
+  fullStretchPixels: 60
