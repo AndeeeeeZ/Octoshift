@@ -58,6 +58,12 @@ public class PuzzleDragRotator : MonoBehaviour
         if (regionRotator.IsRotating)
             return false;
 
+        if (block.HasConnectionOnFace(hitNormalWorld))
+        {
+            messageController.DisplayMessage("This face is connected to another cube!");
+            return false;
+        }
+
         selectedBlock = block;
 
         dragCamera = camera;
