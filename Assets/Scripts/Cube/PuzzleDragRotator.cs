@@ -3,35 +3,30 @@ using UnityEngine;
 
 public class PuzzleDragRotator : MonoBehaviour
 {
-    private const float CancelRadiusPixels = 24f;
-
+    [Header("Gameplay")]
     [SerializeField] private MessageController messageController; 
     [SerializeField] private FloatValue dragThreshold;
-
     [SerializeField] private RegionRotator regionRotator;
     [SerializeField] private PlayerMovement playerMovement; 
 
+    [Header("Drag Feedback")]
+    [SerializeField] private CubeDragFeedbackSettings feedbackSettings;
+
+    // The selected face defines the input plane and indicator placement.
     private BlockNode selectedBlock;
-
-    private bool dragging;
-    private bool axisLocked;
-
-    private Vector3 localFaceNormal;
-    private Vector3 faceRightLocal;
-    private Vector3 faceUpLocal;
-
-    private Vector3 worldAxis;
-    private Vector3 chosenTangentLocal;
-
+    private CubeDragFace dragFace;
     private Camera dragCamera;
-    private Vector3 faceCenterWorld;
     private Vector2 pressPosition;
+    private bool dragging;
+    private bool hasDirection;
     private bool hasDragged;
 
-    private Quaternion startRotation;
-
+    // A direction becomes a 90-degree rotation only when the mouse is released.
+    private Vector3 worldAxis;
     private int rotationDirection;
     private CubeDragFeedback dragFeedback;
+
+    private float CancelRadiusPixels => Mathf.Max(1f, feedbackSettings.CancelRadiusPixels);
 
     private void Update()
     {
@@ -58,44 +53,38 @@ public class PuzzleDragRotator : MonoBehaviour
         if (regionRotator.IsRotating)
             return false;
 
+        if (feedbackSettings == null)
+        {
+            Debug.LogError("Missing CubeDragFeedbackSettings reference.", this);
+            return false;
+        }
+
         if (block.HasConnectionOnFace(hitNormalWorld))
         {
             messageController.DisplayMessage("This face is connected to another cube!");
             return false;
         }
 
+        if (!CubeDragFace.TryCreate(block, hitNormalWorld, out CubeDragFace face))
+        {
+            Debug.LogError("A draggable cube needs a BoxCollider.", block);
+            return false;
+        }
+
+        // Record the selected cube and face before showing the indicator.
         selectedBlock = block;
-
+        dragFace = face;
         dragCamera = camera;
-
-        dragging = true;
-        axisLocked = false;
-
-        rotationDirection = 0;
         pressPosition = mousePosition;
+        dragging = true;
+        hasDirection = false;
+        rotationDirection = 0;
         hasDragged = false;
-
-        startRotation = block.transform.rotation;
-
-        localFaceNormal =
-            Quaternion.Inverse(startRotation) *
-            hitNormalWorld;
-
-        localFaceNormal = RoundToAxis(localFaceNormal);
-
-        GetFaceBasis(
-            localFaceNormal,
-            out faceRightLocal,
-            out faceUpLocal);
-
         worldAxis = Vector3.zero;
 
-        BoxCollider cubeCollider = block.GetComponent<BoxCollider>();
-        dragFeedback ??= new CubeDragFeedback();
-        dragFeedback.Show(block, cubeCollider,
-            localFaceNormal, faceRightLocal, faceUpLocal,
-            camera, CancelRadiusPixels);
-        faceCenterWorld = dragFeedback.MarkerCenterWorld;
+        dragFeedback ??= new CubeDragFeedback(feedbackSettings);
+        dragFeedback.Show(dragFace, camera, CancelRadiusPixels,
+            block.GetComponent<Renderer>());
 
         return true;
     }
@@ -105,7 +94,7 @@ public class PuzzleDragRotator : MonoBehaviour
         if (!dragging)
             return;
 
-        Vector3 screenCenter = dragCamera.WorldToScreenPoint(faceCenterWorld);
+        Vector3 screenCenter = dragCamera.WorldToScreenPoint(dragFace.IndicatorCenterWorld);
         Vector2 fromCenter = mousePosition -
             new Vector2(screenCenter.x, screenCenter.y);
 
@@ -131,13 +120,13 @@ public class PuzzleDragRotator : MonoBehaviour
             dragCamera.transform.up * fromCenter.y;
 
         Vector3 localDrag =
-            Quaternion.Inverse(startRotation) *
+            Quaternion.Inverse(dragFace.BlockRotation) *
             worldDrag;
 
         Vector3 localDragOnFace =
             Vector3.ProjectOnPlane(
                 localDrag,
-                localFaceNormal);
+                dragFace.LocalNormal);
 
         if (localDragOnFace.magnitude < dragThreshold.Value)
         {
@@ -151,7 +140,7 @@ public class PuzzleDragRotator : MonoBehaviour
 
     private void ClearPlannedRotation()
     {
-        axisLocked = false;
+        hasDirection = false;
         rotationDirection = 0;
         worldAxis = Vector3.zero;
         dragFeedback?.CancelDirection();
@@ -167,7 +156,7 @@ public class PuzzleDragRotator : MonoBehaviour
         dragging = false;
         dragFeedback?.Hide();
 
-        if (!axisLocked)
+        if (!hasDirection)
             return;
 
         Axis axis = ToAxis(worldAxis);
@@ -205,7 +194,7 @@ public class PuzzleDragRotator : MonoBehaviour
     public void CancelDrag()
     {
         dragging = false;
-        axisLocked = false;
+        hasDirection = false;
         dragFeedback?.Hide();
     }
 
@@ -258,32 +247,34 @@ public class PuzzleDragRotator : MonoBehaviour
 
     private void UpdateDirection(Vector3 localDragOnFace, float dragStrength)
     {
-        float rightAmount = Vector3.Dot(localDragOnFace, faceRightLocal);
+        float rightAmount = Vector3.Dot(localDragOnFace, dragFace.LocalRight);
 
-        float upAmount = Vector3.Dot(localDragOnFace, faceUpLocal);
+        float upAmount = Vector3.Dot(localDragOnFace, dragFace.LocalUp);
 
         float dragAmount;
+        Vector3 tangentLocal;
 
         if (Mathf.Abs(rightAmount) > Mathf.Abs(upAmount))
         {
-            chosenTangentLocal = faceRightLocal;
+            tangentLocal = dragFace.LocalRight;
 
             dragAmount = rightAmount;
         }
         else
         {
-            chosenTangentLocal = faceUpLocal;
+            tangentLocal = dragFace.LocalUp;
 
             dragAmount = upAmount;
         }
 
         worldAxis = (
-                startRotation * Vector3.Cross(localFaceNormal, chosenTangentLocal)).normalized;
+                dragFace.BlockRotation *
+                Vector3.Cross(dragFace.LocalNormal, tangentLocal)).normalized;
 
         rotationDirection = dragAmount >= 0f ? 1 : -1;
 
-        axisLocked = true;
-        dragFeedback?.ShowDirection(chosenTangentLocal * rotationDirection,
+        hasDirection = true;
+        dragFeedback?.ShowDirection(tangentLocal * rotationDirection,
             dragStrength);
     }
 
@@ -298,48 +289,5 @@ public class PuzzleDragRotator : MonoBehaviour
             return Axis.Y;
 
         return Axis.Z;
-    }
-
-    private static void GetFaceBasis(
-        Vector3 localNormal,
-        out Vector3 faceRight,
-        out Vector3 faceUp)
-    {
-        Vector3 reference =
-            Mathf.Abs(localNormal.y) < 0.9f
-            ? Vector3.up
-            : Vector3.forward;
-
-        faceRight =
-            Vector3.Cross(
-                reference,
-                localNormal)
-            .normalized;
-
-        faceUp =
-            Vector3.Cross(
-                localNormal,
-                faceRight)
-            .normalized;
-    }
-
-    private static Vector3 RoundToAxis(Vector3 v)
-    {
-        if (Mathf.Abs(v.x) > 0.9f)
-            return new Vector3(
-                Mathf.Sign(v.x),
-                0f,
-                0f);
-
-        if (Mathf.Abs(v.y) > 0.9f)
-            return new Vector3(
-                0f,
-                Mathf.Sign(v.y),
-                0f);
-
-        return new Vector3(
-            0f,
-            0f,
-            Mathf.Sign(v.z));
     }
 }

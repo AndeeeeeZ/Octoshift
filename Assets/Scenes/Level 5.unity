@@ -7945,6 +7945,7 @@ MonoBehaviour:
   dragThreshold: {fileID: 11400000, guid: 853239c89bbf4a54b801546c547f68ef, type: 2}
   regionRotator: {fileID: 64713218}
   playerMovement: {fileID: 365192242}
+  feedbackSettings: {fileID: 11400000, guid: 6698f10a7df64e8e9dc70ef085d5a03d, type: 2}
 --- !u!1 &1939810451
 GameObject:
   m_ObjectHideFlags: 0

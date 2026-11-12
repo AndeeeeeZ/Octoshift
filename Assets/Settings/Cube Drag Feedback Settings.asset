@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8aeec57d14a4eabbb2e14fd47d40902, type: 3}
+  m_Name: Cube Drag Feedback Settings
+  m_EditorClassIdentifier: Assembly-CSharp::CubeDragFeedbackSettings
+  cancelRadiusPixels: 24
+  sphereColor: {r: 1, g: 0.82, b: 0.2, a: 1}
+  arrowColor: {r: 0, g: 0, b: 0, a: 1}
+  arrowOutlineColor: {r: 1, g: 1, b: 1, a: 1}
+  cancelRingColor: {r: 0, g: 0, b: 0, a: 1}
+  arrowOutlineThickness: 0.012
+  cancelRingThicknessPixels: 2
+  fadeInSeconds: 0.2
+  fadeOutSeconds: 0.35
+  stretchSeconds: 0.14
+  minimumArrowLength: 0.55
+  maximumArrowLength: 1.3
+  fullStretchPixels: 80
