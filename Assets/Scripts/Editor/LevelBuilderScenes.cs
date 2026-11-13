@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public static class LevelBuilderScenes
 {
@@ -205,11 +206,10 @@ public static class LevelBuilderScenes
 
     public static void ConfigureRestart(Scene scene, string sceneName)
     {
-        foreach (RestartHelper restart in LevelBuilderGraph.FindInScene<RestartHelper>(scene))
+        foreach ((Object owner, string _, string callsPath) in RestartEvents(scene))
         {
-            SerializedObject serializedRestart = new(restart);
-            SerializedProperty calls = serializedRestart.FindProperty(
-                "ToReloadCurrScene.m_PersistentCalls.m_Calls");
+            SerializedObject serializedOwner = new(owner);
+            SerializedProperty calls = serializedOwner.FindProperty(callsPath);
 
             if (calls == null)
                 continue;
@@ -225,7 +225,35 @@ public static class LevelBuilderScenes
                 call.FindPropertyRelative("m_Arguments.m_StringArgument").stringValue = sceneName;
             }
 
-            serializedRestart.ApplyModifiedPropertiesWithoutUndo();
+            serializedOwner.ApplyModifiedProperties();
+        }
+
+        EditorSceneManager.MarkSceneDirty(scene);
+    }
+
+    public static IEnumerable<(Object Owner, string Label, string CallsPath)> RestartEvents(Scene scene)
+    {
+        foreach (RestartHelper restart in LevelBuilderGraph.FindInScene<RestartHelper>(scene))
+        {
+            yield return (restart, "R key", "ToReloadCurrScene.m_PersistentCalls.m_Calls");
+        }
+
+        foreach (Button button in LevelBuilderGraph.FindInScene<Button>(scene))
+        {
+            if (button.name == "Restart")
+                yield return (button, "Restart button", "m_OnClick.m_PersistentCalls.m_Calls");
+        }
+
+        VoidEvent fallEvent = AssetDatabase.LoadAssetAtPath<VoidEvent>(
+            "Assets/Scripts/ScriptableObject/Objects/Events/OnPlayerFellOutsideOfScreen.asset");
+
+        if (fallEvent == null)
+            yield break;
+
+        foreach (VoidEventListener listener in LevelBuilderGraph.FindInScene<VoidEventListener>(scene))
+        {
+            if (listener.Event == fallEvent)
+                yield return (listener, "Fall restart", "Response.m_PersistentCalls.m_Calls");
         }
     }
 

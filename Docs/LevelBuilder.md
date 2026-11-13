@@ -8,6 +8,8 @@ Open **Tools > Octoshift > Level Builder** in the Unity Editor. Keep the window 
 2. Click **New Level** and choose a scene name. The tool copies the template, opens the new scene, updates its restart action to use the new name, and adds the scene to Build Settings.
 3. Set **Next Scene** to the scene that should load after the exit.
 
+**Fix Current Scene Restart** updates the R key, on-screen Restart button, and fall-out-of-bounds restart to load the active scene. New levels receive these references automatically.
+
 The template is created only when it is missing. To change the shared setup later, edit `Level Template.unity` directly. Existing levels can be opened and edited with the same window.
 
 ## Build in the Scene view

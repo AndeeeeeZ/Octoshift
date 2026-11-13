@@ -156,6 +156,15 @@ public class LevelBuilderWindow : EditorWindow
             statusMessage = "Current scene added to Build Settings.";
         }
 
+        if (GUILayout.Button("Fix Current Scene Restart") &&
+            !string.IsNullOrEmpty(activeScene.path))
+        {
+            string sceneName = System.IO.Path.GetFileNameWithoutExtension(activeScene.path);
+            LevelBuilderScenes.ConfigureRestart(activeScene, sceneName);
+            validationMessages.Clear();
+            statusMessage = "R key, Restart button, and fall restart now target this scene.";
+        }
+
         EditorGUILayout.Space(8f);
 
         EditorGUILayout.LabelField("Scene View Tools", EditorStyles.boldLabel);

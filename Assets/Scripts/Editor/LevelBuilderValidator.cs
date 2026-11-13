@@ -170,10 +170,12 @@ public static class LevelBuilderValidator
         if (restarts.Count == 0)
             messages.Add("Error: The scene has no RestartHelper.");
 
-        foreach (RestartHelper restart in restarts)
+        string ownName = System.IO.Path.GetFileNameWithoutExtension(scene.path);
+
+        foreach ((Object owner, string label, string callsPath) in
+            LevelBuilderScenes.RestartEvents(scene))
         {
-            SerializedProperty calls = new SerializedObject(restart).FindProperty(
-                "ToReloadCurrScene.m_PersistentCalls.m_Calls");
+            SerializedProperty calls = new SerializedObject(owner).FindProperty(callsPath);
             bool found = false;
 
             if (calls != null)
@@ -189,15 +191,13 @@ public static class LevelBuilderValidator
                     found = true;
                     string target = call.FindPropertyRelative(
                         "m_Arguments.m_StringArgument").stringValue;
-                    string ownName = System.IO.Path.GetFileNameWithoutExtension(scene.path);
-
                     if (target != ownName)
-                        messages.Add($"Error: RestartHelper reloads {target} instead of {ownName}.");
+                        messages.Add($"Error: {label} loads {target} instead of {ownName}.");
                 }
             }
 
             if (!found)
-                messages.Add("Error: RestartHelper has no scene-name assignment.");
+                messages.Add($"Error: {label} has no scene-name assignment.");
         }
 
         bool inBuild = false;
