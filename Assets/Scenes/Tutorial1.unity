@@ -3695,6 +3695,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialPrompts
   player: {fileID: 365192239}
+  goalPlatform: {fileID: 700000000000000004}
   transitionIn: {fileID: 830000000000000000}
   lines:
   - text: {fileID: 2007028853}
@@ -3703,6 +3704,8 @@ MonoBehaviour:
     minimumDisplayTime: 0.8
     keepVisibleWithNext: 0
     waitForGroundedBlock: {fileID: 0}
+    skipWhenPlayerPastX: 1
+    skipAtPlayerX: 4.5
     onShown:
       m_PersistentCalls:
         m_Calls: []
@@ -3715,10 +3718,9 @@ MonoBehaviour:
     minimumDisplayTime: 0.8
     keepVisibleWithNext: 0
     waitForGroundedBlock: {fileID: 0}
+    skipWhenPlayerPastX: 1
+    skipAtPlayerX: 9.5
     onShown:
-      m_PersistentCalls:
-        m_Calls: []
-    onCompleted:
       m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 840000000000000001}
@@ -3733,12 +3735,17 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+    onCompleted:
+      m_PersistentCalls:
+        m_Calls: []
   - text: {fileID: 810000000000000121}
     completion: 0
     target: 0
     minimumDisplayTime: 0
     keepVisibleWithNext: 1
     waitForGroundedBlock: {fileID: 0}
+    skipWhenPlayerPastX: 1
+    skipAtPlayerX: 10.5
     onShown:
       m_PersistentCalls:
         m_Calls: []
@@ -3751,6 +3758,8 @@ MonoBehaviour:
     minimumDisplayTime: 0
     keepVisibleWithNext: 0
     waitForGroundedBlock: {fileID: 0}
+    skipWhenPlayerPastX: 1
+    skipAtPlayerX: 12
     onShown:
       m_PersistentCalls:
         m_Calls: []

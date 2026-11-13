@@ -24,6 +24,9 @@ public class CameraOrbit : MonoBehaviour
     [Tooltip("Speed multiplier for FocusOn moves, such as tutorial pole focuses.")]
     [Range(0.05f, 1f)]
     [SerializeField] private float scriptedFocusSpeedMultiplier = 0.3f;
+    [Tooltip("Return focus to the player after they move this far past a scripted target.")]
+    [Min(0.1f)]
+    [SerializeField] private float scriptedFocusPassDistance = 4.5f;
 
     private PlayerInput input;
 
@@ -41,6 +44,8 @@ public class CameraOrbit : MonoBehaviour
     private Quaternion targetRotation;
     private bool focusing;
     private float activeFocusSpeedMultiplier = 1f;
+    private Transform scriptedFocusTarget;
+    private Vector3 scriptedFocusAxis;
 
     private PlayerMovement playerMovement;
     private StickToWall stickToWall;
@@ -110,6 +115,7 @@ public class CameraOrbit : MonoBehaviour
             // Use the current view as the reference for this drag, including after panning.
             orbitUp = orbitPivot.up;
             focusing = false;
+            scriptedFocusTarget = null;
         }
     }
 
@@ -125,6 +131,7 @@ public class CameraOrbit : MonoBehaviour
 
         // Cancel focus if the player manually pans the camera
         focusing = false;
+        scriptedFocusTarget = null;
 
         // Plane parallel to the screen through the pivot
         panPlane = new Plane(transform.forward, orbitPivot.position);
@@ -155,8 +162,16 @@ public class CameraOrbit : MonoBehaviour
         if (!isActiveAndEnabled || focusTarget == null)
             return;
 
+        scriptedFocusAxis = player.right;
+        if (HasPassedScriptedTarget(focusTarget))
+        {
+            SetAutoFocus();
+            return;
+        }
+
         // Use the same focus target so subsequent block autofocus can take over.
         SetFaceFocus(focusTarget.position, scriptedFocusSpeedMultiplier);
+        scriptedFocusTarget = focusTarget;
     }
 
     private void SetAutoFocus()
@@ -166,6 +181,8 @@ public class CameraOrbit : MonoBehaviour
 
     private void SetFaceFocus(Vector3 position, float speedMultiplier = 1f)
     {
+        scriptedFocusTarget = null;
+
         Quaternion playerRotation = Quaternion.LookRotation(
             player.forward,
             player.up);
@@ -236,6 +253,12 @@ public class CameraOrbit : MonoBehaviour
 
     private void HandleFocus()
     {
+        if (scriptedFocusTarget != null && HasPassedScriptedTarget(scriptedFocusTarget))
+        {
+            // Stop following an old tutorial target after the player has passed it.
+            SetAutoFocus();
+        }
+
         if (!focusing)
             return;
 
@@ -261,5 +284,11 @@ public class CameraOrbit : MonoBehaviour
             orbitPivot.rotation = targetRotation;
             focusing = false;
         }
+    }
+
+    private bool HasPassedScriptedTarget(Transform focusTarget)
+    {
+        return Vector3.Dot(player.position - focusTarget.position, scriptedFocusAxis)
+            > scriptedFocusPassDistance;
     }
 }

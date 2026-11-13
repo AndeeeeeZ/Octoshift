@@ -30,18 +30,24 @@ public class TutorialPrompts : MonoBehaviour
 
         [Tooltip("Optionally wait for the player to land on this block before showing the line.")]
         public Transform waitForGroundedBlock = null;
+        [Tooltip("Skip this line and its camera event once the player moves past this world X position.")]
+        public bool skipWhenPlayerPastX = false;
+        public float skipAtPlayerX = 0f;
         public UnityEvent onShown = new UnityEvent();
         public UnityEvent onCompleted = new UnityEvent();
     }
 
     private class HeldPrompt
     {
+        public TutorialLine line;
         public TextMeshPro text;
         public Color color;
     }
 
     [Header("References")]
     [SerializeField] private Transform player;
+    [Tooltip("Landing here skips earlier instructions and unlocks the goal prompt.")]
+    [SerializeField] private Transform goalPlatform;
     [SerializeField] private PlayableDirector transitionIn;
     [SerializeField] private TutorialLine[] lines;
 
@@ -53,10 +59,12 @@ public class TutorialPrompts : MonoBehaviour
     private GroundDetection groundDetection;
     private Vector3 previousPlayerPosition;
     private float distanceWalked;
+    private float furthestPlayerX;
     private float jumpStartHeight;
     private bool wasGrounded;
     private bool roseDuringJump;
     private bool landedJump;
+    private bool reachedGoalPlatform;
     private bool reachedExit;
     private bool initialized;
     private TextMeshPro floatingText;
@@ -64,6 +72,8 @@ public class TutorialPrompts : MonoBehaviour
     private float revealElapsed;
     private float lineAlpha = 1f;
     private float lineStartedAt;
+    private float heldFadeAlpha = 1f;
+    private bool fadingHeldPrompts;
     private bool trackingProgress;
     private List<HeldPrompt> heldPrompts = new List<HeldPrompt>();
 
@@ -119,6 +129,8 @@ public class TutorialPrompts : MonoBehaviour
     private void BeginSequence()
     {
         trackingProgress = false;
+        reachedGoalPlatform = false;
+        reachedExit = false;
 
         foreach (TutorialLine line in lines)
         {
@@ -144,11 +156,12 @@ public class TutorialPrompts : MonoBehaviour
         // Re-enabling the tutorial starts a fresh sequence.
         previousPlayerPosition = player.position;
         distanceWalked = 0f;
+        furthestPlayerX = player.position.x;
         wasGrounded = groundDetection.IsGrounded();
         jumpStartHeight = Vector3.Dot(player.position, player.up);
         roseDuringJump = false;
         landedJump = false;
-        reachedExit = false;
+        reachedGoalPlatform = IsGroundedOnBlock(goalPlatform);
 
         trackingProgress = true;
         yield return ShowLines();
@@ -163,7 +176,25 @@ public class TutorialPrompts : MonoBehaviour
         // Track actual horizontal travel and a completed, rising jump.
         Vector3 movement = player.position - previousPlayerPosition;
         distanceWalked += Vector3.ProjectOnPlane(movement, player.up).magnitude;
+        furthestPlayerX = Mathf.Max(furthestPlayerX, player.position.x);
         previousPlayerPosition = player.position;
+        reachedGoalPlatform |= IsGroundedOnBlock(goalPlatform);
+
+        // Fade a grouped prompt when the player has passed its instruction.
+        if (heldPrompts.Count > 0 && ShouldSkip(heldPrompts[0].line))
+            fadingHeldPrompts = true;
+
+        if (fadingHeldPrompts)
+        {
+            heldFadeAlpha = fadeDuration <= 0f
+                ? 0f
+                : Mathf.Max(0f, heldFadeAlpha - Time.deltaTime / fadeDuration);
+
+            if (heldFadeAlpha <= 0f)
+                ClearHeldPrompts();
+            else
+                SetHeldPromptsAlpha(lineAlpha);
+        }
 
         bool grounded = groundDetection.IsGrounded();
         if (wasGrounded && !grounded)
@@ -197,10 +228,22 @@ public class TutorialPrompts : MonoBehaviour
                 continue;
             }
 
+            if (ShouldSkip(line))
+            {
+                yield return FadeOutHeldPrompts();
+                continue;
+            }
+
             // Some instructions belong to a particular landing, not just a sequence position.
-            while (line.text.isActiveAndEnabled && line.waitForGroundedBlock != null &&
-                   (!player.IsChildOf(line.waitForGroundedBlock) || !groundDetection.IsGrounded()))
+            while (line.text.isActiveAndEnabled && !CanShowLine(line) &&
+                   !ShouldSkip(line))
                 yield return null;
+
+            if (ShouldSkip(line))
+            {
+                yield return FadeOutHeldPrompts();
+                continue;
+            }
 
             if (!line.text.isActiveAndEnabled)
             {
@@ -212,22 +255,8 @@ public class TutorialPrompts : MonoBehaviour
             if (line.keepVisibleWithNext)
                 landedJump = false;
 
-            floatingText = line.text;
-            floatingText.maxVisibleCharacters = int.MaxValue;
-            floatingText.ForceMeshUpdate();
-
-            // Keep authored vertex colors, including rich text and gradients.
-            TMP_TextInfo info = floatingText.textInfo;
-            authoredVertexColors = new Color32[info.meshInfo.Length][];
-            for (int i = 0; i < info.meshInfo.Length; i++)
-                authoredVertexColors[i] = (Color32[])info.meshInfo[i].colors32.Clone();
-
-            revealElapsed = 0f;
-            lineAlpha = 1f;
+            PrepareLineText(line.text);
             lineStartedAt = Time.time;
-            floatingText.OnPreRenderText += ApplyLetterFade;
-            UpdateLetterFade();
-            floatingText.renderer.enabled = true;
             line.onShown?.Invoke();
             int characterCount = floatingText.textInfo.characterCount;
 
@@ -238,7 +267,7 @@ public class TutorialPrompts : MonoBehaviour
             // Stagger each letter's own fade instead of fading the whole line.
             while (elapsed < typeDuration)
             {
-                if (!floatingText.isActiveAndEnabled)
+                if (!floatingText.isActiveAndEnabled || ShouldSkip(line))
                     break;
 
                 if (line.completion == Completion.LandJump && landedJump)
@@ -250,14 +279,27 @@ public class TutorialPrompts : MonoBehaviour
                 yield return null;
             }
 
+            if (ShouldSkip(line))
+            {
+                yield return FadeOutSkippedLine();
+                continue;
+            }
+
             revealElapsed = float.PositiveInfinity;
             UpdateLetterFade();
 
             float shownAt = Time.time;
             while (floatingText.isActiveAndEnabled &&
                    !(line.completion == Completion.LandJump && landedJump) &&
-                   (Time.time - shownAt < line.minimumDisplayTime || !IsComplete(line)))
+                   (Time.time - shownAt < line.minimumDisplayTime || !IsComplete(line)) &&
+                   !ShouldSkip(line))
                 yield return null;
+
+            if (ShouldSkip(line))
+            {
+                yield return FadeOutSkippedLine();
+                continue;
+            }
 
             if (floatingText.isActiveAndEnabled && IsComplete(line))
                 line.onCompleted?.Invoke();
@@ -265,7 +307,9 @@ public class TutorialPrompts : MonoBehaviour
             if (line.keepVisibleWithNext && floatingText.isActiveAndEnabled)
             {
                 // Leave the completed line in place while the next one types.
-                heldPrompts.Add(new HeldPrompt { text = floatingText, color = floatingText.color });
+                heldFadeAlpha = 1f;
+                fadingHeldPrompts = false;
+                heldPrompts.Add(new HeldPrompt { line = line, text = floatingText, color = floatingText.color });
                 RestoreCurrentText();
                 continue;
             }
@@ -273,11 +317,20 @@ public class TutorialPrompts : MonoBehaviour
             elapsed = 0f;
             while (elapsed < fadeDuration)
             {
+                if (ShouldSkip(line))
+                    break;
+
                 elapsed += Time.deltaTime;
                 lineAlpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
                 UpdateLetterFade();
                 SetHeldPromptsAlpha(lineAlpha);
                 yield return null;
+            }
+
+            if (ShouldSkip(line))
+            {
+                yield return FadeOutSkippedLine();
+                continue;
             }
 
             floatingText.renderer.enabled = false;
@@ -286,6 +339,87 @@ public class TutorialPrompts : MonoBehaviour
         }
 
         ClearHeldPrompts();
+    }
+
+    private bool ShouldSkip(TutorialLine line)
+    {
+        return reachedExit ||
+            (reachedGoalPlatform && line.completion != Completion.ReachExit) ||
+            (line.skipWhenPlayerPastX && furthestPlayerX >= line.skipAtPlayerX);
+    }
+
+    private bool CanShowLine(TutorialLine line)
+    {
+        if (line.waitForGroundedBlock == null)
+            return true;
+
+        return (line.waitForGroundedBlock == goalPlatform && reachedGoalPlatform) ||
+            IsGroundedOnBlock(line.waitForGroundedBlock);
+    }
+
+    private bool IsGroundedOnBlock(Transform block)
+    {
+        return block != null && player.IsChildOf(block) && groundDetection.IsGrounded();
+    }
+
+    private IEnumerator FadeOutSkippedLine()
+    {
+        TextMeshPro text = floatingText;
+
+        if (revealElapsed <= 0f)
+        {
+            text.renderer.enabled = false;
+            RestoreCurrentText();
+            yield return FadeOutHeldPrompts();
+            yield break;
+        }
+
+        float startAlpha = lineAlpha;
+        float elapsed = 0f;
+        float remainingFade = fadeDuration * startAlpha;
+
+        // Keep the current letter reveal, fading only what is already visible.
+        while (text.isActiveAndEnabled && elapsed < remainingFade)
+        {
+            elapsed += Time.deltaTime;
+            lineAlpha = Mathf.Lerp(startAlpha, 0f, Mathf.Clamp01(elapsed / remainingFade));
+            UpdateLetterFade();
+            SetHeldPromptsAlpha(lineAlpha);
+            yield return null;
+        }
+
+        text.renderer.enabled = false;
+        RestoreCurrentText();
+        ClearHeldPrompts();
+    }
+
+    private IEnumerator FadeOutHeldPrompts()
+    {
+        if (heldPrompts.Count == 0)
+            yield break;
+
+        fadingHeldPrompts = true;
+        while (heldPrompts.Count > 0)
+            yield return null;
+    }
+
+    private void PrepareLineText(TextMeshPro text)
+    {
+        floatingText = text;
+        floatingText.maxVisibleCharacters = int.MaxValue;
+        floatingText.ForceMeshUpdate();
+
+        // Keep authored vertex colors, including rich text and gradients.
+        TMP_TextInfo info = floatingText.textInfo;
+        authoredVertexColors = new Color32[info.meshInfo.Length][];
+        for (int i = 0; i < info.meshInfo.Length; i++)
+            authoredVertexColors[i] = (Color32[])info.meshInfo[i].colors32.Clone();
+
+        revealElapsed = 0f;
+        lineAlpha = 1f;
+        floatingText.OnPreRenderText += ApplyLetterFade;
+        UpdateLetterFade();
+        floatingText.renderer.enabled = true;
     }
 
     private bool IsComplete(TutorialLine line)
@@ -367,7 +501,7 @@ public class TutorialPrompts : MonoBehaviour
                 continue;
 
             Color color = prompt.color;
-            color.a *= alpha;
+            color.a *= alpha * heldFadeAlpha;
             prompt.text.color = color;
         }
     }
@@ -384,6 +518,8 @@ public class TutorialPrompts : MonoBehaviour
         }
 
         heldPrompts.Clear();
+        heldFadeAlpha = 1f;
+        fadingHeldPrompts = false;
     }
 
 }
