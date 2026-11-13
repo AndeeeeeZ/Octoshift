@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Playables;
 
 public class TutorialPrompts : MonoBehaviour
@@ -23,6 +25,19 @@ public class TutorialPrompts : MonoBehaviour
         public Completion completion = Completion.Time;
         public float target = 0f;
         public float minimumDisplayTime = 0.7f;
+        [Tooltip("Keep this line visible until the following line completes, then fade both together.")]
+        public bool keepVisibleWithNext = false;
+
+        [Tooltip("Optionally wait for the player to land on this block before showing the line.")]
+        public Transform waitForGroundedBlock = null;
+        public UnityEvent onShown = new UnityEvent();
+        public UnityEvent onCompleted = new UnityEvent();
+    }
+
+    private class HeldPrompt
+    {
+        public TextMeshPro text;
+        public Color color;
     }
 
     [Header("References")]
@@ -50,6 +65,7 @@ public class TutorialPrompts : MonoBehaviour
     private float lineAlpha = 1f;
     private float lineStartedAt;
     private bool trackingProgress;
+    private List<HeldPrompt> heldPrompts = new List<HeldPrompt>();
 
     private void Start()
     {
@@ -87,6 +103,7 @@ public class TutorialPrompts : MonoBehaviour
         StopAllCoroutines();
         trackingProgress = false;
         RestoreCurrentText();
+        ClearHeldPrompts();
 
         // Hide the presentation when this component or its parent is switched off.
         if (lines == null)
@@ -175,7 +192,25 @@ public class TutorialPrompts : MonoBehaviour
         {
             // Keep the authored text, transform, font, and GameObject enabled state.
             if (line.text == null || !line.text.isActiveAndEnabled)
+            {
+                ClearHeldPrompts();
                 continue;
+            }
+
+            // Some instructions belong to a particular landing, not just a sequence position.
+            while (line.text.isActiveAndEnabled && line.waitForGroundedBlock != null &&
+                   (!player.IsChildOf(line.waitForGroundedBlock) || !groundDetection.IsGrounded()))
+                yield return null;
+
+            if (!line.text.isActiveAndEnabled)
+            {
+                ClearHeldPrompts();
+                continue;
+            }
+
+            // A grouped instruction should wait for a landing after it starts.
+            if (line.keepVisibleWithNext)
+                landedJump = false;
 
             floatingText = line.text;
             floatingText.maxVisibleCharacters = int.MaxValue;
@@ -193,6 +228,7 @@ public class TutorialPrompts : MonoBehaviour
             floatingText.OnPreRenderText += ApplyLetterFade;
             UpdateLetterFade();
             floatingText.renderer.enabled = true;
+            line.onShown?.Invoke();
             int characterCount = floatingText.textInfo.characterCount;
 
             float elapsed = 0f;
@@ -203,6 +239,9 @@ public class TutorialPrompts : MonoBehaviour
             while (elapsed < typeDuration)
             {
                 if (!floatingText.isActiveAndEnabled)
+                    break;
+
+                if (line.completion == Completion.LandJump && landedJump)
                     break;
 
                 elapsed += Time.deltaTime;
@@ -216,8 +255,20 @@ public class TutorialPrompts : MonoBehaviour
 
             float shownAt = Time.time;
             while (floatingText.isActiveAndEnabled &&
+                   !(line.completion == Completion.LandJump && landedJump) &&
                    (Time.time - shownAt < line.minimumDisplayTime || !IsComplete(line)))
                 yield return null;
+
+            if (floatingText.isActiveAndEnabled && IsComplete(line))
+                line.onCompleted?.Invoke();
+
+            if (line.keepVisibleWithNext && floatingText.isActiveAndEnabled)
+            {
+                // Leave the completed line in place while the next one types.
+                heldPrompts.Add(new HeldPrompt { text = floatingText, color = floatingText.color });
+                RestoreCurrentText();
+                continue;
+            }
 
             elapsed = 0f;
             while (elapsed < fadeDuration)
@@ -225,12 +276,16 @@ public class TutorialPrompts : MonoBehaviour
                 elapsed += Time.deltaTime;
                 lineAlpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
                 UpdateLetterFade();
+                SetHeldPromptsAlpha(lineAlpha);
                 yield return null;
             }
 
             floatingText.renderer.enabled = false;
             RestoreCurrentText();
+            ClearHeldPrompts();
         }
+
+        ClearHeldPrompts();
     }
 
     private bool IsComplete(TutorialLine line)
@@ -302,6 +357,33 @@ public class TutorialPrompts : MonoBehaviour
 
         authoredVertexColors = null;
         floatingText = null;
+    }
+
+    private void SetHeldPromptsAlpha(float alpha)
+    {
+        foreach (HeldPrompt prompt in heldPrompts)
+        {
+            if (prompt.text == null)
+                continue;
+
+            Color color = prompt.color;
+            color.a *= alpha;
+            prompt.text.color = color;
+        }
+    }
+
+    private void ClearHeldPrompts()
+    {
+        foreach (HeldPrompt prompt in heldPrompts)
+        {
+            if (prompt.text == null)
+                continue;
+
+            prompt.text.renderer.enabled = false;
+            prompt.text.color = prompt.color;
+        }
+
+        heldPrompts.Clear();
     }
 
 }

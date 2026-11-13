@@ -20,6 +20,11 @@ public class CameraOrbit : MonoBehaviour
     [Tooltip("Shift the focus upward along the player's up direction. Positive values show more above the player.")]
     [SerializeField] private float focusHeightOffset = 0f;
 
+    [Header("Scripted Focus")]
+    [Tooltip("Speed multiplier for FocusOn moves, such as tutorial pole focuses.")]
+    [Range(0.05f, 1f)]
+    [SerializeField] private float scriptedFocusSpeedMultiplier = 0.3f;
+
     private PlayerInput input;
 
     private Vector2 lookInput;
@@ -35,6 +40,7 @@ public class CameraOrbit : MonoBehaviour
     private Vector3 targetPosition;
     private Quaternion targetRotation;
     private bool focusing;
+    private float activeFocusSpeedMultiplier = 1f;
 
     private PlayerMovement playerMovement;
     private StickToWall stickToWall;
@@ -144,12 +150,21 @@ public class CameraOrbit : MonoBehaviour
         SetAutoFocus();
     }
 
+    public void FocusOn(Transform focusTarget)
+    {
+        if (!isActiveAndEnabled || focusTarget == null)
+            return;
+
+        // Use the same focus target so subsequent block autofocus can take over.
+        SetFaceFocus(focusTarget.position, scriptedFocusSpeedMultiplier);
+    }
+
     private void SetAutoFocus()
     {
         SetFaceFocus(playerMovement.GetCurrBlockPosition());
     }
 
-    private void SetFaceFocus(Vector3 position)
+    private void SetFaceFocus(Vector3 position, float speedMultiplier = 1f)
     {
         Quaternion playerRotation = Quaternion.LookRotation(
             player.forward,
@@ -162,6 +177,9 @@ public class CameraOrbit : MonoBehaviour
 
         targetPosition = position + player.up * focusHeightOffset;
         targetRotation = playerRotation * offset;
+
+        // Each request owns its speed; block and manual focus restore full speed.
+        activeFocusSpeedMultiplier = Mathf.Max(0.01f, speedMultiplier);
         focusing = true;
     }
 
@@ -222,8 +240,8 @@ public class CameraOrbit : MonoBehaviour
             return;
 
         // Exponential smoothing for consistent movement
-        float moveT = 1f - Mathf.Exp(-focusMoveSpeed * Time.deltaTime);
-        float rotateT = 1f - Mathf.Exp(-focusRotateSpeed * Time.deltaTime);
+        float moveT = 1f - Mathf.Exp(-focusMoveSpeed * activeFocusSpeedMultiplier * Time.deltaTime);
+        float rotateT = 1f - Mathf.Exp(-focusRotateSpeed * activeFocusSpeedMultiplier * Time.deltaTime);
 
         orbitPivot.position = Vector3.Lerp(
             orbitPivot.position,
