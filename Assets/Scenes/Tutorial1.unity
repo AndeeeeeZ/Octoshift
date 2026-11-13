@@ -3722,6 +3722,9 @@ MonoBehaviour:
     skipAtPlayerX: 9.5
     onShown:
       m_PersistentCalls:
+        m_Calls: []
+    onCompleted:
+      m_PersistentCalls:
         m_Calls:
         - m_Target: {fileID: 840000000000000001}
           m_TargetAssemblyTypeName: CameraOrbit, Assembly-CSharp
@@ -3735,9 +3738,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
-    onCompleted:
-      m_PersistentCalls:
-        m_Calls: []
   - text: {fileID: 810000000000000121}
     completion: 0
     target: 0
