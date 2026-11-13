@@ -10,11 +10,13 @@ public class CameraOrbit : MonoBehaviour
     [Header("Controls")]
     [SerializeField] private float sensitivity = 0.2f;
     [SerializeField] private float panSensitivity = 1f;
+    [SerializeField] private bool allowManualControls = true;
 
     [Header("Focus")]
     [SerializeField] private float focusMoveSpeed = 8f;
     [SerializeField] private float focusRotateSpeed = 8f;
     [SerializeField] private FloatValue focusAngleOffsetX, focusAngleOffsetY;
+    [SerializeField] private bool perpendicularFocus;
 
     private PlayerInput input;
 
@@ -39,13 +41,12 @@ public class CameraOrbit : MonoBehaviour
     {
         input = new PlayerInput();
         cam = Camera.main;
+        playerMovement = player.GetComponent<PlayerMovement>();
+        stickToWall = player.GetComponent<StickToWall>();
     }
 
     private void Start()
     {
-        playerMovement = player.GetComponent<PlayerMovement>();
-        stickToWall = player.GetComponent<StickToWall>();
-
         targetPosition = orbitPivot.position;
         targetRotation = orbitPivot.rotation;
 
@@ -91,6 +92,9 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnDrag(InputAction.CallbackContext context)
     {
+        if (!allowManualControls)
+            return;
+
         rotating = context.ReadValueAsButton();
 
         if (rotating)
@@ -103,6 +107,9 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnPan(InputAction.CallbackContext context)
     {
+        if (!allowManualControls)
+            return;
+
         panning = context.ReadValueAsButton();
 
         if (!panning)
@@ -129,7 +136,7 @@ public class CameraOrbit : MonoBehaviour
 
     public void Focus()
     {
-        if (stickToWall.SuppressAutoFocus)
+        if (!isActiveAndEnabled || stickToWall == null || stickToWall.SuppressAutoFocus)
             return;
 
         SetAutoFocus();
@@ -146,7 +153,7 @@ public class CameraOrbit : MonoBehaviour
             player.forward,
             player.up);
 
-        Quaternion offset = Quaternion.Euler(
+        Quaternion offset = perpendicularFocus ? Quaternion.identity : Quaternion.Euler(
             focusAngleOffsetX.Value,
             focusAngleOffsetY.Value,
             0f);
@@ -221,7 +228,8 @@ public class CameraOrbit : MonoBehaviour
             targetPosition,
             moveT);
 
-        orbitPivot.rotation = Quaternion.Slerp(
+        // A perpendicular view must not tilt between surface orientations.
+        orbitPivot.rotation = perpendicularFocus ? targetRotation : Quaternion.Slerp(
             orbitPivot.rotation,
             targetRotation,
             rotateT);
