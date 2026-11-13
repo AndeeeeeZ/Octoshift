@@ -15,7 +15,8 @@ The template is created only when it is missing. To change the shared setup late
 - **Cube:** Choose the layer axis and layer number. Left-click to place a cube on the 3D grid. The cyan wire cube shows the placement position. `Cube Spacing` defaults to 6, matching the center-to-center spacing in Levels 1–5. Cubes are parented under `Puzzle` when that root exists, and the grid origin follows its position.
 - **Connect:** Left-click one cube, then a neighboring cube along X, Y, or Z. The tool places a Pole prefab halfway between them and records the pole in both cubes' connection lists. Click the first cube again to cancel.
 - **Player / Exit:** Left-click a visible, unconnected cube face. The tool moves the existing player or exit onto that face and activates it. If one is absent, it creates the assigned prefab; a new player is wired to the level's message, rotation, bound, and camera components.
-- **Erase:** Left-click a pole to remove the connection, or a cube to remove it and its poles. The player and exit are detached and preserved when their cube is erased.
+- **Floor / One-way:** Press on a visible, unconnected cube face, drag to the opposite corner of a rectangle, and release. The rectangle stays within that face. The tool sizes the matching prefab's collider and sprite together and parents it to the cube, so it follows cube rotations. A horizontal drag makes a narrow ledge; dragging both directions makes a larger surface. One-way platforms keep their built-in trigger wiring.
+- **Erase:** Left-click a placed floor or one-way platform to remove it, a pole to remove its connection, or a cube to remove it and its attached platforms and poles. The player and exit are detached and preserved when their cube is erased.
 
 Alt-drag and other non-left-click Scene view navigation still work. Turn off **Enable Tool** to use normal Scene selection and transform tools. Every placement and deletion supports Unity Undo.
 
@@ -23,6 +24,6 @@ For an existing level whose grid is offset, select one of its cubes in the Hiera
 
 ## Check and play
 
-Click **Validate Level** to check for a missing or inactive player or exit, empty or overlapping cube cells, broken or duplicate connections, off-grid cubes, missing controller references, and Build Settings inclusion. Save the scene, then use Unity Play Mode to test movement, rotation, exit, and restart. The tool does not alter player-facing controls.
+Click **Validate Level** to check for a missing or inactive player or exit, empty or overlapping cube cells, broken or duplicate connections, off-grid cubes, missing controller and one-way platform references, and Build Settings inclusion. Save the scene, then use Unity Play Mode to test movement, rotation, platforms, exit, and restart. The tool does not alter player-facing controls.
 
-The builder focuses on cubes, poles, player, and exit. Other props and presentation can still be added with Unity's ordinary scene tools. Face placement uses a small surface offset; adjust the transform in the Inspector when a particular visual needs fine positioning.
+Other props and presentation can still be added with Unity's ordinary scene tools. Face placement uses a small surface offset; adjust the transform in the Inspector when a particular visual needs fine positioning.

@@ -128,6 +128,18 @@ public static class LevelBuilderValidator
             CheckReference(new SerializedObject(orbit), "player", messages, orbit.name);
         }
 
+        foreach (OneWayPlatform platform in LevelBuilderGraph.FindInScene<OneWayPlatform>(scene))
+        {
+            CheckReference(new SerializedObject(platform), "platformCollider", messages,
+                platform.name);
+        }
+
+        foreach (OneWayPlatformTrigger trigger in
+            LevelBuilderGraph.FindInScene<OneWayPlatformTrigger>(scene))
+        {
+            CheckReference(new SerializedObject(trigger), "platform", messages, trigger.name);
+        }
+
         List<SceneLoader> loaders = LevelBuilderGraph.FindInScene<SceneLoader>(scene);
 
         if (loaders.Count == 0)

@@ -6,12 +6,16 @@ using UnityEngine.SceneManagement;
 
 public class LevelBuilderWindow : EditorWindow
 {
+    private const int SceneControlHint = 0x4C425001;
+
     private enum BuilderMode
     {
         Cube,
         Connect,
         Player,
         Exit,
+        Floor,
+        OneWayPlatform,
         Erase
     }
 
@@ -26,6 +30,8 @@ public class LevelBuilderWindow : EditorWindow
     [SerializeField] private GameObject polePrefab;
     [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject exitPrefab;
+    [SerializeField] private GameObject floorPrefab;
+    [SerializeField] private GameObject oneWayPlatformPrefab;
     [SerializeField] private SceneAsset templateScene;
     [SerializeField] private BuilderMode mode;
     [SerializeField] private LayerAxis layerAxis = LayerAxis.Z;
@@ -42,6 +48,12 @@ public class LevelBuilderWindow : EditorWindow
     private Vector2 scrollPosition;
     private List<string> validationMessages = new();
     private string statusMessage;
+    private BlockNode platformCube;
+    private Vector3 platformNormal;
+    private Vector3 platformFaceCenter;
+    private Vector3 platformStart;
+    private Vector3 platformEnd;
+    private BuilderMode platformMode;
 
     [MenuItem("Tools/Octoshift/Level Builder")]
     public static void Open()
@@ -55,6 +67,9 @@ public class LevelBuilderWindow : EditorWindow
         polePrefab ??= AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Pole.prefab");
         playerPrefab ??= AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Player.prefab");
         exitPrefab ??= AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Exit.prefab");
+        floorPrefab ??= AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Floor.prefab");
+        oneWayPlatformPrefab ??= AssetDatabase.LoadAssetAtPath<GameObject>(
+            "Assets/Prefabs/Oneway Platform.prefab");
         templateScene ??= AssetDatabase.LoadAssetAtPath<SceneAsset>(LevelBuilderScenes.TemplatePath);
 
         if (settingsVersion == 0)
@@ -74,6 +89,8 @@ public class LevelBuilderWindow : EditorWindow
     {
         SceneView.duringSceneGui -= OnSceneGUI;
         Undo.undoRedoPerformed -= OnUndoRedo;
+        platformCube = null;
+        GUIUtility.hotControl = 0;
     }
 
     private void OnGUI()
@@ -144,13 +161,17 @@ public class LevelBuilderWindow : EditorWindow
         EditorGUILayout.LabelField("Scene View Tools", EditorStyles.boldLabel);
         toolActive = EditorGUILayout.Toggle("Enable Tool", toolActive);
 
-        BuilderMode newMode = (BuilderMode)GUILayout.Toolbar((int)mode,
-            new[] { "Cube", "Connect", "Player", "Exit", "Erase" });
+        if (!toolActive)
+            platformCube = null;
+
+        BuilderMode newMode = (BuilderMode)GUILayout.SelectionGrid((int)mode,
+            new[] { "Cube", "Connect", "Player", "Exit", "Floor", "One-way", "Erase" }, 4);
 
         if (newMode != mode)
         {
             mode = newMode;
             firstConnectionCube = null;
+            platformCube = null;
             SceneView.RepaintAll();
         }
 
@@ -181,6 +202,9 @@ public class LevelBuilderWindow : EditorWindow
         polePrefab = (GameObject)EditorGUILayout.ObjectField("Pole", polePrefab, typeof(GameObject), false);
         playerPrefab = (GameObject)EditorGUILayout.ObjectField("Player", playerPrefab, typeof(GameObject), false);
         exitPrefab = (GameObject)EditorGUILayout.ObjectField("Exit", exitPrefab, typeof(GameObject), false);
+        floorPrefab = (GameObject)EditorGUILayout.ObjectField("Floor", floorPrefab, typeof(GameObject), false);
+        oneWayPlatformPrefab = (GameObject)EditorGUILayout.ObjectField(
+            "One-way", oneWayPlatformPrefab, typeof(GameObject), false);
 
         EditorGUILayout.Space(8f);
 
@@ -212,7 +236,9 @@ public class LevelBuilderWindow : EditorWindow
             BuilderMode.Connect => "Left-click two neighboring cubes to add a pole.",
             BuilderMode.Player => "Left-click a cube face to place the player.",
             BuilderMode.Exit => "Left-click a cube face to place the exit.",
-            BuilderMode.Erase => "Left-click a cube or pole to erase it. Player and exit are preserved.",
+            BuilderMode.Floor => "Drag on a cube face to draw a solid floor rectangle.",
+            BuilderMode.OneWayPlatform => "Drag on a cube face to draw a one-way platform rectangle.",
+            BuilderMode.Erase => "Left-click a platform, pole, or cube to erase it. Player and exit are preserved.",
             _ => ""
         };
     }
@@ -229,19 +255,56 @@ public class LevelBuilderWindow : EditorWindow
         if (!scene.IsValid() || !scene.isLoaded)
             return;
 
+        if (platformCube != null && platformCube.gameObject.scene != scene)
+            platformCube = null;
+
         Event current = Event.current;
+        int controlId = GUIUtility.GetControlID(SceneControlHint, FocusType.Passive);
+
+        if (platformCube == null && GUIUtility.hotControl == controlId)
+            GUIUtility.hotControl = 0;
+
+        if (platformCube != null && current.type == EventType.KeyDown &&
+            current.keyCode == KeyCode.Escape)
+        {
+            platformCube = null;
+            GUIUtility.hotControl = 0;
+            statusMessage = "Platform placement cancelled.";
+            current.Use();
+            Repaint();
+            sceneView.Repaint();
+            return;
+        }
 
         if (current.type == EventType.Layout)
-            HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+            HandleUtility.AddDefaultControl(controlId);
 
         if (current.type == EventType.MouseMove || current.type == EventType.MouseDrag)
         {
             hasHoverPosition = TryGetGridPosition(current.mousePosition, out hoverPosition);
+
+            if (platformCube != null && current.type == EventType.MouseDrag)
+            {
+                UpdatePlatformDrag(current.mousePosition);
+                current.Use();
+            }
+
             sceneView.Repaint();
         }
 
         if (current.type == EventType.Repaint)
             DrawSceneGuides();
+
+        if (platformCube != null && current.type == EventType.MouseUp && current.button == 0)
+        {
+            UpdatePlatformDrag(current.mousePosition);
+            FinishPlatformDrag(scene);
+            GUIUtility.hotControl = 0;
+            current.Use();
+            Repaint();
+            sceneView.Repaint();
+            return;
+        }
 
         if (current.type != EventType.MouseDown || current.button != 0 ||
             current.alt || current.control || current.command)
@@ -265,6 +328,15 @@ public class LevelBuilderWindow : EditorWindow
 
             case BuilderMode.Exit:
                 PlaceOnCubeFace<Exit>(scene, current.mousePosition, exitPrefab);
+                break;
+
+            case BuilderMode.Floor:
+            case BuilderMode.OneWayPlatform:
+                BeginPlatformDrag(scene, current.mousePosition);
+
+                if (platformCube != null)
+                    GUIUtility.hotControl = controlId;
+
                 break;
 
             case BuilderMode.Erase:
@@ -297,6 +369,9 @@ public class LevelBuilderWindow : EditorWindow
             Vector3 size = box == null ? CubePreviewSize() : box.bounds.size;
             Handles.DrawWireCube(firstConnectionCube.transform.position, size * 1.05f);
         }
+
+        if (platformCube != null)
+            DrawPlatformPreview();
     }
 
     private Vector3 CubePreviewSize()
@@ -489,7 +564,7 @@ public class LevelBuilderWindow : EditorWindow
         GameObject prefab) where T : Component
     {
         if (!TryGetCubeFace(scene, mousePosition, out BlockNode cube,
-            out Vector3 normal, out Vector3 facePoint))
+            out Vector3 normal, out Vector3 facePoint, out _))
         {
             statusMessage = "Click a visible cube face.";
             return;
@@ -538,12 +613,7 @@ public class LevelBuilderWindow : EditorWindow
         Undo.SetTransformParent(instance.transform, cube.transform, "Attach to Cube");
         Undo.RecordObject(instance.transform, "Position on Cube Face");
 
-        Vector3 up = Vector3.ProjectOnPlane(Vector3.up, normal);
-
-        if (up.sqrMagnitude < 0.01f)
-            up = Vector3.ProjectOnPlane(Vector3.forward, normal);
-
-        instance.transform.rotation = Quaternion.LookRotation(-normal, up.normalized);
+        instance.transform.rotation = FaceRotation(normal);
         instance.transform.position = facePoint + normal * 0.03f;
 
         PrefabUtility.RecordPrefabInstancePropertyModifications(instance);
@@ -552,6 +622,157 @@ public class LevelBuilderWindow : EditorWindow
         Undo.CollapseUndoOperations(undoGroup);
 
         statusMessage = $"Placed {typeof(T).Name} on {cube.name}.";
+    }
+
+    private void BeginPlatformDrag(Scene scene, Vector2 mousePosition)
+    {
+        GameObject prefab = mode == BuilderMode.Floor ? floorPrefab : oneWayPlatformPrefab;
+
+        if (prefab == null || prefab.GetComponent<BoxCollider>() == null ||
+            (mode == BuilderMode.Floor &&
+             prefab.GetComponent<SurfaceAttachHelper>() == null) ||
+            (mode == BuilderMode.OneWayPlatform &&
+             (prefab.GetComponent<OneWayPlatform>() == null ||
+              prefab.GetComponentInChildren<OneWayPlatformTrigger>() == null)))
+        {
+            statusMessage = "Assign the matching platform prefab with a BoxCollider.";
+            return;
+        }
+
+        if (!TryGetCubeFace(scene, mousePosition, out BlockNode cube,
+            out Vector3 normal, out Vector3 faceCenter, out Vector3 hitPoint))
+        {
+            statusMessage = "Start the drag on a visible cube face.";
+            return;
+        }
+
+        if (cube.HasConnectionOnFace(normal))
+        {
+            statusMessage = "That face is occupied by a connection.";
+            return;
+        }
+
+        platformCube = cube;
+        platformNormal = normal;
+        platformFaceCenter = faceCenter;
+        platformStart = hitPoint;
+        platformEnd = hitPoint;
+        platformMode = mode;
+        statusMessage = "Drag to the opposite corner, then release.";
+    }
+
+    private void UpdatePlatformDrag(Vector2 mousePosition)
+    {
+        if (platformCube == null)
+            return;
+
+        Plane facePlane = new(platformNormal, platformFaceCenter);
+        Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
+
+        if (!facePlane.Raycast(ray, out float distance))
+            return;
+
+        BoxCollider box = platformCube.GetComponent<BoxCollider>();
+
+        if (box == null)
+            return;
+
+        Vector3 localPoint = platformCube.transform.InverseTransformPoint(ray.GetPoint(distance));
+        Vector3 lower = box.center - box.size * 0.5f;
+        Vector3 upper = box.center + box.size * 0.5f;
+
+        localPoint.x = Mathf.Clamp(localPoint.x, lower.x, upper.x);
+        localPoint.y = Mathf.Clamp(localPoint.y, lower.y, upper.y);
+        localPoint.z = Mathf.Clamp(localPoint.z, lower.z, upper.z);
+
+        Vector3 localNormal = DominantAxis(
+            platformCube.transform.InverseTransformDirection(platformNormal));
+
+        if (Mathf.Abs(localNormal.x) > 0.5f)
+            localPoint.x = box.center.x + localNormal.x * box.size.x * 0.5f;
+        else if (Mathf.Abs(localNormal.y) > 0.5f)
+            localPoint.y = box.center.y + localNormal.y * box.size.y * 0.5f;
+        else
+            localPoint.z = box.center.z + localNormal.z * box.size.z * 0.5f;
+
+        platformEnd = platformCube.transform.TransformPoint(localPoint);
+    }
+
+    private void GetPlatformShape(out Vector3 center, out Quaternion rotation,
+        out float width, out float height)
+    {
+        rotation = FaceRotation(platformNormal);
+        Vector3 distance = Quaternion.Inverse(rotation) * (platformEnd - platformStart);
+
+        width = Mathf.Max(Mathf.Abs(distance.x), 0.5f);
+        height = Mathf.Max(Mathf.Abs(distance.y),
+            platformMode == BuilderMode.Floor ? 0.6f : 0.3f);
+        center = (platformStart + platformEnd) * 0.5f + platformNormal * 0.01f;
+    }
+
+    private void DrawPlatformPreview()
+    {
+        GetPlatformShape(out Vector3 center, out Quaternion rotation,
+            out float width, out float height);
+
+        Matrix4x4 previousMatrix = Handles.matrix;
+        Handles.matrix = Matrix4x4.TRS(center, rotation, Vector3.one);
+        Handles.color = platformMode == BuilderMode.Floor ? Color.green : Color.magenta;
+        Handles.DrawWireCube(Vector3.zero, new Vector3(width, height, 0.08f));
+        Handles.matrix = previousMatrix;
+    }
+
+    private void FinishPlatformDrag(Scene scene)
+    {
+        BlockNode cube = platformCube;
+        platformCube = null;
+
+        if (cube == null || cube.gameObject.scene != scene)
+            return;
+
+        GameObject prefab = platformMode == BuilderMode.Floor ? floorPrefab : oneWayPlatformPrefab;
+
+        if (prefab == null)
+            return;
+
+        GetPlatformShape(out Vector3 center, out Quaternion rotation,
+            out float width, out float height);
+
+        int undoGroup = Undo.GetCurrentGroup();
+        Undo.SetCurrentGroupName("Place Platform");
+
+        GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+        Undo.RegisterCreatedObjectUndo(instance, "Place Platform");
+        Undo.SetTransformParent(instance.transform, cube.transform, "Attach Platform to Cube");
+
+        BoxCollider box = instance.GetComponent<BoxCollider>();
+        float depth = platformMode == BuilderMode.Floor ? 0.25f : 0.2f;
+        Transform parent = cube.transform;
+
+        Undo.RecordObject(instance.transform, "Size Platform");
+        instance.transform.rotation = rotation;
+        instance.transform.position = center;
+        instance.transform.localScale = new Vector3(
+            width * parent.InverseTransformVector(rotation * Vector3.right).magnitude / box.size.x,
+            height * parent.InverseTransformVector(rotation * Vector3.up).magnitude / box.size.y,
+            depth * parent.InverseTransformVector(rotation * Vector3.forward).magnitude / box.size.z);
+
+        PrefabUtility.RecordPrefabInstancePropertyModifications(instance.transform);
+        EditorSceneManager.MarkSceneDirty(scene);
+        Undo.CollapseUndoOperations(undoGroup);
+
+        statusMessage = platformMode == BuilderMode.Floor ?
+            "Floor placed on cube face." : "One-way platform placed on cube face.";
+    }
+
+    private static Quaternion FaceRotation(Vector3 normal)
+    {
+        Vector3 up = Vector3.ProjectOnPlane(Vector3.up, normal);
+
+        if (up.sqrMagnitude < 0.01f)
+            up = Vector3.ProjectOnPlane(Vector3.forward, normal);
+
+        return Quaternion.LookRotation(-normal, up.normalized);
     }
 
     private static void WireNewPlayer(Scene scene, PlayerMovement player)
@@ -585,11 +806,13 @@ public class LevelBuilderWindow : EditorWindow
     }
 
     private bool TryGetCubeFace(Scene scene, Vector2 mousePosition,
-        out BlockNode cube, out Vector3 normal, out Vector3 facePoint)
+        out BlockNode cube, out Vector3 normal, out Vector3 facePoint,
+        out Vector3 hitPoint)
     {
         cube = null;
         normal = default;
         facePoint = default;
+        hitPoint = default;
 
         Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
         RaycastHit[] hits = Physics.RaycastAll(ray, 10000f);
@@ -615,6 +838,7 @@ public class LevelBuilderWindow : EditorWindow
             normal = candidate.transform.TransformDirection(localNormal).normalized;
             facePoint = candidate.transform.TransformPoint(
                 box.center + Vector3.Scale(localNormal, box.size * 0.5f));
+            hitPoint = hit.point;
             nearest = hit.distance;
         }
 
@@ -641,6 +865,27 @@ public class LevelBuilderWindow : EditorWindow
         if (picked == null || picked.scene != scene)
             return;
 
+        OneWayPlatform oneWay = picked.GetComponentInParent<OneWayPlatform>();
+
+        if (oneWay != null)
+        {
+            Undo.DestroyObjectImmediate(oneWay.gameObject);
+            EditorSceneManager.MarkSceneDirty(scene);
+            statusMessage = "One-way platform erased.";
+            return;
+        }
+
+        SurfaceAttachHelper surface = picked.GetComponentInParent<SurfaceAttachHelper>();
+
+        if (surface != null && surface.name.StartsWith("Floor") &&
+            IsStandaloneFloor(surface.gameObject))
+        {
+            Undo.DestroyObjectImmediate(surface.gameObject);
+            EditorSceneManager.MarkSceneDirty(scene);
+            statusMessage = "Floor erased.";
+            return;
+        }
+
         Pole pole = picked.GetComponentInParent<Pole>();
 
         if (pole != null)
@@ -660,6 +905,12 @@ public class LevelBuilderWindow : EditorWindow
             LevelBuilderGraph.DeleteCube(cube);
             statusMessage = "Cube and its connections erased.";
         }
+    }
+
+    private bool IsStandaloneFloor(GameObject floor)
+    {
+        Object source = PrefabUtility.GetCorrespondingObjectFromSource(floor);
+        return source == null || source == floorPrefab;
     }
 
     private static T PickComponent<T>(Vector2 mousePosition) where T : Component
