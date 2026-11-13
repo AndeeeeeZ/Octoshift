@@ -1706,6 +1706,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3552142677895500267, guid: 409313b50fae74848a5c70c542f6adc4, type: 3}
+      propertyPath: focusHeightOffset
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3552142677895500267, guid: 409313b50fae74848a5c70c542f6adc4, type: 3}
       propertyPath: perpendicularFocus
       value: 1
       objectReference: {fileID: 0}
@@ -4225,9 +4229,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'A / D OR LEFT / RIGHT
-
-    TO WALK'
+  m_text: <voffset=0.5em><sprite name="A"> <sprite name="D"></voffset> TO WALK
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b95285627884f174284da51cc1d63e06, type: 2}
   m_sharedMaterial: {fileID: -4476001016125914634, guid: b95285627884f174284da51cc1d63e06, type: 2}
@@ -4246,7 +4248,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: 060eff7debb5ba041b8851e3811a92f1, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
@@ -4365,7 +4367,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.68, y: 6.8}
+  m_AnchoredPosition: {x: 3.68, y: 6.67}
   m_SizeDelta: {x: 60, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &810000000000000120
@@ -4406,9 +4408,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'SPACE, W OR UP
-
-    TO JUMP'
+  m_text: "       <voffset=0.4em><sprite name=\"space\"> </voffset> or <voffset=0.4em><sprite
+    name=\"W\"></voffset> \nTO JUMP"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b95285627884f174284da51cc1d63e06, type: 2}
   m_sharedMaterial: {fileID: -4476001016125914634, guid: b95285627884f174284da51cc1d63e06, type: 2}
@@ -4427,7 +4428,7 @@ MonoBehaviour:
     bottomLeft: {r: 1, g: 1, b: 1, a: 1}
     bottomRight: {r: 1, g: 1, b: 1, a: 1}
   m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
+  m_spriteAsset: {fileID: 11400000, guid: 060eff7debb5ba041b8851e3811a92f1, type: 2}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
   m_TextStyleHashCode: -1183493901
@@ -4447,7 +4448,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: -19.71
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -4546,7 +4547,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 6.71, y: 6.8}
+  m_AnchoredPosition: {x: 6.71, y: 7.05}
   m_SizeDelta: {x: 60, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &810000000000000130
@@ -4725,7 +4726,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 9.77, y: 6.8}
+  m_AnchoredPosition: {x: 9.77, y: 6.5}
   m_SizeDelta: {x: 60, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &810000000000000140
@@ -4807,7 +4808,7 @@ MonoBehaviour:
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
-  m_lineSpacing: 0
+  m_lineSpacing: -14.9
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
@@ -4906,7 +4907,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 12.49, y: 6.8}
+  m_AnchoredPosition: {x: 12.49, y: 6.89}
   m_SizeDelta: {x: 60, y: 16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &820000000000000000

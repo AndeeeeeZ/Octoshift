@@ -17,6 +17,8 @@ public class CameraOrbit : MonoBehaviour
     [SerializeField] private float focusRotateSpeed = 8f;
     [SerializeField] private FloatValue focusAngleOffsetX, focusAngleOffsetY;
     [SerializeField] private bool perpendicularFocus;
+    [Tooltip("Shift the focus upward along the player's up direction. Positive values show more above the player.")]
+    [SerializeField] private float focusHeightOffset = 0f;
 
     private PlayerInput input;
 
@@ -158,7 +160,7 @@ public class CameraOrbit : MonoBehaviour
             focusAngleOffsetY.Value,
             0f);
 
-        targetPosition = position;
+        targetPosition = position + player.up * focusHeightOffset;
         targetRotation = playerRotation * offset;
         focusing = true;
     }
