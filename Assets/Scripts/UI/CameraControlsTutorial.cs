@@ -19,14 +19,13 @@ public class CameraControlsTutorial : MonoBehaviour
     [SerializeField] private CameraZoom cameraZoom;
     [SerializeField] private RestartHelper restartHelper;
     [SerializeField] private PlayableDirector transitionIn;
-    [SerializeField] private GameObject exit;
+    [SerializeField] private PlayableDirector endMenu;
     [SerializeField] private CanvasGroup presentation;
 
     [Header("Scene Text")]
     [SerializeField] private TextMeshProUGUI introduction;
     [Tooltip("Orbit, pan, focus, and restart, in that order. Edit their wording and style in the scene.")]
     [SerializeField] private TextMeshProUGUI[] objectives;
-    [SerializeField] private TextMeshProUGUI exitPrompt;
 
     [Header("Animation")]
     [SerializeField] private float charactersPerSecond = 20f;
@@ -49,7 +48,6 @@ public class CameraControlsTutorial : MonoBehaviour
 
     private TutorialLetterFade introductionFade;
     private TutorialLetterFade[] objectiveFades;
-    private TutorialLetterFade exitPromptFade;
     private int completedCount;
     private int activeObjective = -1;
     private float controlProgress;
@@ -82,11 +80,11 @@ public class CameraControlsTutorial : MonoBehaviour
     private void Awake()
     {
         if (cameraOrbit == null || cameraZoom == null || restartHelper == null ||
-            exit == null || presentation == null || introduction == null ||
-            exitPrompt == null || objectives == null || objectives.Length != 4 ||
+            endMenu == null || presentation == null || introduction == null ||
+            objectives == null || objectives.Length != 4 ||
             System.Array.Exists(objectives, text => text == null))
         {
-            Debug.LogError("Camera tutorial needs its camera, restart, exit, and six scene text references.", this);
+            Debug.LogError("Camera tutorial needs its camera, restart, end menu, and five scene text references.", this);
             enabled = false;
             return;
         }
@@ -99,7 +97,6 @@ public class CameraControlsTutorial : MonoBehaviour
 
         ClearCheckpoint();
 
-        exit.SetActive(false);
         presentation.alpha = 0f;
         SetCameraControls(false);
         cameraOrbit.SetPerpendicularFocus(!introductionComplete);
@@ -116,7 +113,6 @@ public class CameraControlsTutorial : MonoBehaviour
     private void Start()
     {
         introductionFade = new TutorialLetterFade(introduction, charactersPerSecond, letterFadeDuration);
-        exitPromptFade = new TutorialLetterFade(exitPrompt, charactersPerSecond, letterFadeDuration);
         objectiveFades = new TutorialLetterFade[objectives.Length];
         for (int i = 0; i < objectives.Length; i++)
             objectiveFades[i] = new TutorialLetterFade(objectives[i], charactersPerSecond, letterFadeDuration);
@@ -138,7 +134,6 @@ public class CameraControlsTutorial : MonoBehaviour
 
         StopAllCoroutines();
         introductionFade?.Dispose();
-        exitPromptFade?.Dispose();
         if (objectiveFades != null)
         {
             foreach (TutorialLetterFade fade in objectiveFades)
@@ -196,8 +191,7 @@ public class CameraControlsTutorial : MonoBehaviour
         }
 
         activeObjective = -1;
-        yield return Reveal(exitPrompt, exitPromptFade);
-        exit.SetActive(true);
+        endMenu.Play();
     }
 
     private IEnumerator RestoreCompletedObjectives()
@@ -309,12 +303,6 @@ public class CameraControlsTutorial : MonoBehaviour
         ClearCheckpoint();
         restarting = true;
         StopAllCoroutines();
-        SetCameraControls(false);
-    }
-
-    public void OnExitReached()
-    {
-        presentation.alpha = 0f;
         SetCameraControls(false);
     }
 
