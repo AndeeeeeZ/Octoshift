@@ -68,7 +68,7 @@ public class TutorialPrompts : MonoBehaviour
     private bool reachedExit;
     private bool initialized;
     private TextMeshPro floatingText;
-    private Color32[][] authoredVertexColors;
+    private TutorialLetterFade letterFade;
     private float revealElapsed;
     private float lineAlpha = 1f;
     private float lineStartedAt;
@@ -406,18 +406,9 @@ public class TutorialPrompts : MonoBehaviour
     private void PrepareLineText(TextMeshPro text)
     {
         floatingText = text;
-        floatingText.maxVisibleCharacters = int.MaxValue;
-        floatingText.ForceMeshUpdate();
-
-        // Keep authored vertex colors, including rich text and gradients.
-        TMP_TextInfo info = floatingText.textInfo;
-        authoredVertexColors = new Color32[info.meshInfo.Length][];
-        for (int i = 0; i < info.meshInfo.Length; i++)
-            authoredVertexColors[i] = (Color32[])info.meshInfo[i].colors32.Clone();
-
         revealElapsed = 0f;
         lineAlpha = 1f;
-        floatingText.OnPreRenderText += ApplyLetterFade;
+        letterFade = new TutorialLetterFade(text, charactersPerSecond, letterFadeDuration);
         UpdateLetterFade();
         floatingText.renderer.enabled = true;
     }
@@ -443,38 +434,7 @@ public class TutorialPrompts : MonoBehaviour
 
     private void UpdateLetterFade()
     {
-        ApplyLetterFade(floatingText.textInfo);
-        floatingText.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
-    }
-
-    private void ApplyLetterFade(TMP_TextInfo info)
-    {
-        if (authoredVertexColors == null)
-            return;
-
-        for (int i = 0; i < info.characterCount; i++)
-        {
-            TMP_CharacterInfo character = info.characterInfo[i];
-            if (!character.isVisible)
-                continue;
-
-            int material = character.materialReferenceIndex;
-            int vertex = character.vertexIndex;
-            if (material >= authoredVertexColors.Length ||
-                vertex + 3 >= authoredVertexColors[material].Length)
-                continue;
-
-            float startsAt = i / Mathf.Max(1f, charactersPerSecond);
-            float alpha = Mathf.Clamp01((revealElapsed - startsAt) / Mathf.Max(0.01f, letterFadeDuration))
-                * lineAlpha;
-
-            for (int corner = 0; corner < 4; corner++)
-            {
-                Color32 color = authoredVertexColors[material][vertex + corner];
-                color.a = (byte)Mathf.RoundToInt(color.a * alpha);
-                info.meshInfo[material].colors32[vertex + corner] = color;
-            }
-        }
+        letterFade?.SetProgress(revealElapsed, lineAlpha);
     }
 
     private void RestoreCurrentText()
@@ -482,14 +442,10 @@ public class TutorialPrompts : MonoBehaviour
         if (floatingText == null)
             return;
 
-        floatingText.OnPreRenderText -= ApplyLetterFade;
+        letterFade?.Dispose();
+        letterFade = null;
         revealElapsed = float.PositiveInfinity;
         lineAlpha = 1f;
-
-        if (authoredVertexColors != null)
-            UpdateLetterFade();
-
-        authoredVertexColors = null;
         floatingText = null;
     }
 

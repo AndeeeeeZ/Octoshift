@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 public class RestartHelper : MonoBehaviour
 {
     public UnityEvent ToReloadCurrScene; 
+    public UnityEvent OnRestartRequested = new UnityEvent();
     private PlayerInput input;
 
     private void Awake()
@@ -26,6 +27,8 @@ public class RestartHelper : MonoBehaviour
 
     public void ReloadScene(InputAction.CallbackContext context)
     {
+        // Let tutorials record this input before the scene transition starts.
+        OnRestartRequested?.Invoke();
         ToReloadCurrScene?.Invoke(); 
     }
 }

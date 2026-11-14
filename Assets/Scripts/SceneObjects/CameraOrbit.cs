@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -49,6 +50,12 @@ public class CameraOrbit : MonoBehaviour
 
     private PlayerMovement playerMovement;
     private StickToWall stickToWall;
+
+    public event Action<float> OrbitPerformed;
+    public event Action<float> PanPerformed;
+    public event Action FocusPerformed;
+
+    public bool IsFocusing => focusing;
 
     private void Awake()
     {
@@ -146,7 +153,40 @@ public class CameraOrbit : MonoBehaviour
 
     private void OnFocus(InputAction.CallbackContext context)
     {
+        if (!allowManualControls)
+            return;
+
+        FocusOnPlayer();
+        FocusPerformed?.Invoke();
+    }
+
+    public void SetManualControlsEnabled(bool value)
+    {
+        allowManualControls = value;
+
+        // A scripted camera move must also stop any drag already in progress.
+        if (!value)
+        {
+            rotating = false;
+            panning = false;
+            lookInput = Vector2.zero;
+        }
+    }
+
+    public void SetPerpendicularFocus(bool value)
+    {
+        perpendicularFocus = value;
+    }
+
+    public void FocusOnPlayer(bool immediately = false)
+    {
         SetFaceFocus(player.position);
+
+        if (immediately)
+        {
+            orbitPivot.SetPositionAndRotation(targetPosition, targetRotation);
+            focusing = false;
+        }
     }
 
     public void Focus()
@@ -222,8 +262,13 @@ public class CameraOrbit : MonoBehaviour
             -lookInput.y * sensitivity,
             right);
 
+        Quaternion previousRotation = orbitPivot.rotation;
         orbitPivot.rotation =
             yaw * pitch * orbitPivot.rotation;
+
+        float angle = Quaternion.Angle(previousRotation, orbitPivot.rotation);
+        if (angle > 0f)
+            OrbitPerformed?.Invoke(angle);
     }
 
     private void HandlePan()
@@ -242,6 +287,10 @@ public class CameraOrbit : MonoBehaviour
         Vector3 delta = lastPanPoint - currentPoint;
 
         orbitPivot.position += delta * panSensitivity;
+
+        float distance = (delta * panSensitivity).magnitude;
+        if (distance > 0f)
+            PanPerformed?.Invoke(distance);
 
         ray = cam.ScreenPointToRay(Mouse.current.position.ReadValue());
 
