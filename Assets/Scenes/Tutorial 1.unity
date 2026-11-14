@@ -478,7 +478,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c964e2a78d68e0f4cb12156739d964f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneLoader
-  targetSceneName: Level 0
+  targetSceneName: Tutorial 2
 --- !u!4 &92199733
 Transform:
   m_ObjectHideFlags: 0
@@ -1499,6 +1499,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnRestartRequested:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &636866439
 Transform:
   m_ObjectHideFlags: 0
@@ -3772,6 +3775,8 @@ MonoBehaviour:
     minimumDisplayTime: 0.8
     keepVisibleWithNext: 0
     waitForGroundedBlock: {fileID: 700000000000000004}
+    skipWhenPlayerPastX: 0
+    skipAtPlayerX: 0
     onShown:
       m_PersistentCalls:
         m_Calls:
