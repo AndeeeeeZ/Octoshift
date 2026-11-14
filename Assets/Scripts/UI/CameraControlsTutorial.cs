@@ -178,8 +178,7 @@ public class CameraControlsTutorial : MonoBehaviour
             introductionComplete = true;
         }
 
-        for (int i = 0; i < completedCount; i++)
-            objectiveFades[i].SetProgress(float.PositiveInfinity, completedAlpha);
+        yield return RestoreCompletedObjectives();
 
         SetCameraControls(true);
 
@@ -199,6 +198,27 @@ public class CameraControlsTutorial : MonoBehaviour
         activeObjective = -1;
         yield return Reveal(exitPrompt, exitPromptFade);
         exit.SetActive(true);
+    }
+
+    private IEnumerator RestoreCompletedObjectives()
+    {
+        if (completedCount == 0)
+            yield break;
+
+        // Restore the dimmed lines together, then type the next objective normally.
+        presentation.alpha = 0f;
+        for (int i = 0; i < completedCount; i++)
+            objectiveFades[i].SetProgress(float.PositiveInfinity, completedAlpha);
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            presentation.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            yield return null;
+        }
+
+        presentation.alpha = 1f;
     }
 
     private IEnumerator Reveal(TMP_Text text, TutorialLetterFade fade)
