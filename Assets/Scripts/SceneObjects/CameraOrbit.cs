@@ -70,7 +70,7 @@ public class CameraOrbit : MonoBehaviour
         targetPosition = orbitPivot.position;
         targetRotation = orbitPivot.rotation;
 
-        SetAutoFocus();
+        FocusOnCurrentBlock();
     }
 
     private void OnEnable()
@@ -156,7 +156,7 @@ public class CameraOrbit : MonoBehaviour
         if (!allowManualControls)
             return;
 
-        FocusOnPlayer();
+        FocusOnCurrentBlock();
         FocusPerformed?.Invoke();
     }
 
@@ -178,9 +178,9 @@ public class CameraOrbit : MonoBehaviour
         perpendicularFocus = value;
     }
 
-    public void FocusOnPlayer(bool immediately = false)
+    public void FocusOnCurrentBlock(bool immediately = false)
     {
-        SetFaceFocus(player.position);
+        SetFaceFocus(playerMovement.GetCurrBlockPosition());
 
         if (immediately)
         {
@@ -194,7 +194,7 @@ public class CameraOrbit : MonoBehaviour
         if (!isActiveAndEnabled || stickToWall == null || stickToWall.SuppressAutoFocus)
             return;
 
-        SetAutoFocus();
+        FocusOnCurrentBlock();
     }
 
     public void FocusOn(Transform focusTarget)
@@ -205,18 +205,13 @@ public class CameraOrbit : MonoBehaviour
         scriptedFocusAxis = player.right;
         if (HasPassedScriptedTarget(focusTarget))
         {
-            SetAutoFocus();
+            FocusOnCurrentBlock();
             return;
         }
 
         // Use the same focus target so subsequent block autofocus can take over.
         SetFaceFocus(focusTarget.position, scriptedFocusSpeedMultiplier);
         scriptedFocusTarget = focusTarget;
-    }
-
-    private void SetAutoFocus()
-    {
-        SetFaceFocus(playerMovement.GetCurrBlockPosition());
     }
 
     private void SetFaceFocus(Vector3 position, float speedMultiplier = 1f)
@@ -305,7 +300,7 @@ public class CameraOrbit : MonoBehaviour
         if (scriptedFocusTarget != null && HasPassedScriptedTarget(scriptedFocusTarget))
         {
             // Stop following an old tutorial target after the player has passed it.
-            SetAutoFocus();
+            FocusOnCurrentBlock();
         }
 
         if (!focusing)

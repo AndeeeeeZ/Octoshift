@@ -115,8 +115,6 @@ public class CameraControlsTutorial : MonoBehaviour
 
     private void Start()
     {
-        cameraOrbit.FocusOnPlayer(true);
-
         introductionFade = new TutorialLetterFade(introduction, charactersPerSecond, letterFadeDuration);
         exitPromptFade = new TutorialLetterFade(exitPrompt, charactersPerSecond, letterFadeDuration);
         objectiveFades = new TutorialLetterFade[objectives.Length];
@@ -153,8 +151,11 @@ public class CameraControlsTutorial : MonoBehaviour
 
     private IEnumerator RunTutorial()
     {
-        // Wait for the same transition-in used by Tutorial 1.
+        // StickToWall finds the starting block in LateUpdate, after Start.
         yield return null;
+        cameraOrbit.FocusOnCurrentBlock(true);
+
+        // Wait for the same transition-in used by Tutorial 1.
         while (transitionIn != null && transitionIn.state == PlayState.Playing &&
                transitionIn.time < transitionIn.duration)
             yield return null;
@@ -168,7 +169,7 @@ public class CameraControlsTutorial : MonoBehaviour
 
             // Reveal depth with the exact angle offset used by the F key.
             cameraOrbit.SetPerpendicularFocus(false);
-            cameraOrbit.FocusOnPlayer();
+            cameraOrbit.FocusOnCurrentBlock();
             while (cameraOrbit.IsFocusing)
                 yield return null;
 
